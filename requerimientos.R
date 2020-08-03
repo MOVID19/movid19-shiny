@@ -2,7 +2,10 @@ if (!require("remotes")) install.packages("remotes")
 
 if (!require("highcharter")) remotes::install_github("jbkunst/highcharter")
 
-paquetes <- c("shiny", "bs4Dash", "dplyr", "shinyWidgets", "purrr", "ggsci")
+if (!require("bs4Dash")) remotes::install_github("RinteRface/bs4Dash", force = TRUE)
+
+# CRAN
+paquetes <- c("shiny", "dplyr", "shinyWidgets", "purrr", "ggsci")
 
 for(p in paquetes) {
   

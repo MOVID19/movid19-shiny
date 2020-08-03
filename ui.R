@@ -1,9 +1,9 @@
 bs4DashPage(
-    enable_preloader = TRUE,
-    sidebar_collapsed = TRUE,
+    enable_preloader = FALSE,
+    sidebar_collapsed = FALSE,
     navbar = bs4DashNavbar(),
     sidebar = bs4DashSidebar(
-        title = tags$small("MOVID19"),
+        title = NULL,
         expand_on_hover = TRUE,
         fixed = FALSE,
         skin = "light",
@@ -19,26 +19,36 @@ bs4DashPage(
                 icon = "stethoscope"
             ),
             bs4SidebarMenuItem(
+                text = "Social",
+                tabName = "Social",
+                icon = "users"
+            ),            
+            bs4SidebarMenuItem(
                 text = "Sistema de Salud",
                 tabName = "sistema",
                 icon = "hospital-o"
             ),
             bs4SidebarMenuItem(
-                text = "Informe III",
-                tabName = "economia",
-                icon = "area-chart"
+                text = "Acerca de",
+                tabName = "acerca",
+                icon = "question-circle"
             )
         )
     ),
     body = bs4DashBody(
         tags$head(tags$link(rel="shortcut icon", href="fa.png")),
         tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/movid19.css")),
-        tags$script(src = "js/custom19.js"),
+        tags$script(src = "js/movid19.js"),
         bs4TabItems(
             bs4TabItem(
                 tabName = "inicio",
                 bs4CardHC(highchartOutput("chart"))
+                ),
+            bs4TabItem(
+                tabName = "acerca",
+                verbatimTextOutput("input")
                 )
-            )
+            ),
+        
         )
     )

@@ -1,3 +1,5 @@
+message("R/helpers.R")
+
 RMD_to_HTML <- function(file) {
   
   HTML(

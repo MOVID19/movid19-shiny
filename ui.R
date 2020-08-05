@@ -42,7 +42,10 @@ bs4DashPage(
         bs4TabItems(
             bs4TabItem(
                 tabName = "inicio",
-                bs4CardHC(highchartOutput("chart"))
+                fluidRow(
+                    bs4CardHC(highchartOutput("chart2")),
+                    bs4CardHC(highchartOutput("chart"))
+                    )
                 ),
             bs4TabItem(
                 tabName = "acerca",

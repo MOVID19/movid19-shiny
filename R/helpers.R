@@ -28,6 +28,6 @@ bs4CardHC <- purrr::partial(
   bs4Card,
   elevation = 1,
   closable = FALSE,
-  width = 12,
+  width = 6,
   collapsible = FALSE
 )

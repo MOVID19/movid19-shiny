@@ -5,12 +5,19 @@ suppressPackageStartupMessages({
   library(shiny)
   library(bs4Dash)
   library(dplyr)
+  library(stringr)
+  library(forcats)
   library(highcharter)
   library(shinyWidgets)
   library(ggsci)
   
 })
 
+# data --------------------------------------------------------------------
+movid <- readRDS("data/movid.rds")
+
+movid <- movid %>% 
+  mutate(semana_fecha = as.Date(paste(2020, semana, 1, sep="-"), "%Y-%U-%u"))
 
 
 # highcharter -------------------------------------------------------------
@@ -27,11 +34,14 @@ options(
   highcharter.lang = newlang_opts,
   highcharter.google_fonts = TRUE,
   highcharter.theme = 
-    hc_theme(
+    hc_theme_smpl(
       chart = list(
         style = list(fontFamily = "Roboto")
       ),
-      colors = ggsci::pal_jama(alpha = 0.7)(7),
+      title = list(
+        style = list(fontFamily = "Montserrat")
+      ),
+      colors = ggsci::pal_jama()(7)[-1],
       xAxis = list(gridLineWidth = 1),
       yAxis = list(gridLineWidth = 1),
       plotOptions = list(
@@ -39,19 +49,6 @@ options(
           marker = list(symbol = "circle")
         )
       ),
-      exporting = list(
-        buttons = list(
-          contextButton = list(
-            symbol = 'url(https://www.iconsdb.com/icons/preview/gray/download-2-xxl.png)',
-            symbolSize = 18,
-            symbolX = 21,
-            symbolY = 20,
-            titleKey = "Descargar",
-            y = -05
-          )
-        )
-      ),
-      
       tooltip = list(
         useHTML = TRUE
       ),

@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
   library(shiny)
   library(bs4Dash)
   library(dplyr)
+  library(tidyr)
   library(stringr)
   library(forcats)
   library(highcharter)
@@ -16,9 +17,34 @@ suppressPackageStartupMessages({
 # data --------------------------------------------------------------------
 movid <- readRDS("data/movid.rds")
 
-movid <- movid %>% 
-  mutate(semana_fecha = as.Date(paste(2020, semana, 1, sep="-"), "%Y-%U-%u"))
+# # demograficas
+# movid$sexo      %>% table()
+# movid$prev      %>% table()
+# movid$edad_3cat %>% table()
+# movid$educ_3cat %>% table()
 
+# sintomas ----------------------------------------------------------------
+OPTS_SINTOMAS <- c(
+    `Fiebre (temperatura axilar sobre los 37,8° C)` = "snt_fiebre",
+    Tos = "snt_tos",
+    `Dificultad para respirar` = "snt_disnea",
+    `Dolor muscular` = "snt_mialgias",
+    `Dolor de garganta` = "snt_odinofagia",
+    `Disminución o pérdida del olfato` = "snt_anosmia",
+    `Disminución o pérdida del gusto` = "snt_disgeusia",
+    `Dolor en el pecho` = "snt_dol_torax",
+    `Dolor de cabeza` = "snt_cefalea",
+    Diarrea = "snt_diarrea",
+    `No he tenido ninguno de estos síntomas` = "snt_null"
+  )
+
+OPTS_SINTOMAS_DF <- OPTS_SINTOMAS %>%
+  as.list() %>% 
+  tibble::enframe() %>% 
+  unnest(cols = c(value)) %>% 
+  mutate(value = paste0("s1_", value))
+
+# dput(setNames(names(OPTS_SINTOMAS), OPTS_SINTOMAS))
 
 # highcharter -------------------------------------------------------------
 newlang_opts <- getOption("highcharter.lang")
@@ -50,9 +76,9 @@ options(
         )
       ),
       tooltip = list(
-        useHTML = TRUE
+        useHTML = TRUE,
+        valueDecimals = 2
       ),
-      
       legend = list(
         verticalAlign = "top",
         align = "left",

@@ -6,8 +6,11 @@ library(stringr)
 
 # lectura de datos --------------------------------------------------------
 # Script que procesa movid18.csv
-mv <- data.table::fread("data/movid19.csv")
+mv <- data.table::fread("data/movid19.csv", encoding = "UTF-8")
+
 mv <- as_tibble(mv)
+
+# mv$r5_educ
 
 # glimpse(mv)
 
@@ -32,7 +35,6 @@ mv <- mv %>%
   mutate(
     fecha_ymd = as.Date(fecha)
   )
-
 
 mv$fecha_ymd <- as.Date(mv$fecha)
 
@@ -144,6 +146,15 @@ mv <- mv %>%
       TRUE ~ actividad
     )
   )
+
+
+# 20200805 ----------------------------------------------------------------
+# miercoles de la semana anterior
+mv <- mv %>% 
+  mutate(
+    semana_fecha = as.Date(paste(2020, semana, 1, sep="-"), "%Y-%U-%u"),
+    semana_fecha = semana_fecha - lubridate::days(5)
+    )
 
 
 # exportar ----------------------------------------------------------------

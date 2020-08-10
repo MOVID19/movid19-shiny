@@ -19,14 +19,19 @@ bs4DashPage(
                 icon = "stethoscope"
             ),
             bs4SidebarMenuItem(
-                text = "Social",
-                tabName = "Social",
-                icon = "users"
-            ),            
-            bs4SidebarMenuItem(
-                text = "Sistema de Salud",
+                text = "Acceso sistema de salud",
                 tabName = "sistema",
                 icon = "hospital-o"
+            ),
+            bs4SidebarMenuItem(
+                text = "Prácticas sociales",
+                tabName = "Social",
+                icon = "users"
+            ),
+            bs4SidebarMenuItem(
+                text = "Percepción de riesgo",
+                tabName = "percepcion",
+                icon = "exclamation-triangle"
             ),
             bs4SidebarMenuItem(
                 text = "Acerca de",
@@ -43,15 +48,57 @@ bs4DashPage(
             bs4TabItem(
                 tabName = "inicio",
                 fluidRow(
-                    bs4CardHC(highchartOutput("chart2")),
-                    bs4CardHC(highchartOutput("chart"))
+                    bs4Card(
+                        title = "Respuestas",
+                        collapsible = FALSE,
+                        width = 8,
+                        highchartOutput("inc_respuestas")
+                        ),
+                    bs4Card(
+                        title = "Género",
+                        collapsible = FALSE,
+                        width = 4,
+                        highchartOutput("inc_genero")
+                        )
                     )
                 ),
             bs4TabItem(
-                tabName = "acerca",
-                verbatimTextOutput("input")
+                tabName = "sintomas",
+                fluidRow(
+                    bs4Card(
+                        title = "Síntomas",
+                        collapsible = FALSE,
+                        width = 6,
+                        selectizeInput(
+                            "snt_opt", NULL, 
+                            choices = OPTS_SINTOMAS,
+                            selected = "snt_fiebre",
+                            multiple = TRUE, 
+                            width = "100%",
+                            options = list(maxItems = 5)
+                            ),
+                        highchartOutput("snt_hc_tlsnt")
+                    ),
+                    bs4Card(
+                        title = "Sospechoso",
+                        collapsible = FALSE,
+                        width = 6,
+                        highchartOutput("snt_hc_sospc")
+                    ),
+                    bs4Card(
+                        title = "Contacto estrecho",
+                        collapsible = FALSE,
+                        width = 6,
+                        highchartOutput("snt_hc_contc")
+                    ),
+                    bs4Card(
+                        title = "Confirmados y probables",
+                        collapsible = FALSE,
+                        width = 6,
+                        highchartOutput("snt_hc_confm")
+                    ),
                 )
-            ),
-        
+            )
         )
     )
+)

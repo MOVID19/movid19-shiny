@@ -117,12 +117,10 @@ shinyServer(function(input, output, session) {
   output$snt_hc_confm <- renderHighchart({
     
     d <- movid %>%
-      # select(semana_fecha, contacto) %>%
-      # gather(tipo, valor, -semana_fecha) %>%
       group_by(semana_fecha) %>%
       summarise(
         `Proporción caso confirmado COVID19` = mean(100 * exmn_confirmado, na.rm = TRUE),
-        `Proporción caso probable COVID19` = mean(100 * caso_probable, na.rm = TRUE),
+        `Proporción caso probable COVID19` = mean(100 * caso_probable2, na.rm = TRUE),
         .groups = "drop"
         ) %>% 
       gather(tipo, proporcion, -semana_fecha) %>% 
@@ -138,7 +136,6 @@ shinyServer(function(input, output, session) {
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
     
   })
-  
   
       
 })

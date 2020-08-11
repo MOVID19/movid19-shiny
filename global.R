@@ -44,7 +44,20 @@ OPTS_SINTOMAS_DF <- OPTS_SINTOMAS %>%
   unnest(cols = c(value)) %>% 
   mutate(value = paste0("s1_", value))
 
-# dput(setNames(names(OPTS_SINTOMAS), OPTS_SINTOMAS))
+
+# sistema salud -----------------------------------------------------------
+OPTS_DESAGREGAR <- c(
+  "Sin desagregar" = "todo",
+  "Sexo" = "sexo", 
+  "Edad" = "edad_3cat",
+  # región, 
+  "Previsión" = "prev",
+  "Ocupación" = "pr3_ocupacion", 
+  "Educación" = "educ_3cat" 
+  # residencia en comuna en cuarentena
+)
+
+
 
 # highcharter -------------------------------------------------------------
 newlang_opts <- getOption("highcharter.lang")

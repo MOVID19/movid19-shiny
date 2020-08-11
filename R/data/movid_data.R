@@ -156,11 +156,17 @@ mv <- mv %>%
     semana_fecha = semana_fecha - lubridate::days(5)
     )
 
-
 # 20200810 ----------------------------------------------------------------
 mv <- mv %>% 
   mutate(
     caso_probable2 =  contacto == 1 & sosp_minsal0530 == 1
+  )
+
+# 20200811 ----------------------------------------------------------------
+# variable auxiliar para el selector dedesagregación
+mv <- mv %>% 
+  mutate(
+    todo = "Total"
   )
 
 # exportar ----------------------------------------------------------------

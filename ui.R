@@ -1,6 +1,8 @@
 bs4DashPage(
-    enable_preloader = FALSE,
-    sidebar_collapsed = FALSE,
+    enable_preloader = TRUE,
+    loading_duration = 1.5,
+    loading_background = "#00A1D5",
+    sidebar_collapsed = TRUE,
     navbar = bs4DashNavbar(),
     sidebar = bs4DashSidebar(
         title = NULL,
@@ -11,7 +13,8 @@ bs4DashPage(
             bs4SidebarMenuItem(
                 text = "Inicio",
                 tabName = "inicio",
-                icon =  "tachometer-alt"
+                # icon =  "tachometer-alt",
+                icon = "virus"
             ),
             bs4SidebarMenuItem(
                 text = "Síntomas",
@@ -48,16 +51,18 @@ bs4DashPage(
             bs4TabItem(
                 tabName = "inicio",
                 fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-virus"), " Inicio")
+                    ),
                     bs4Card(
-                        title = "Respuestas",
-                        collapsible = FALSE,
                         width = 8,
+                        title = "Respuestas",
                         highchartOutput("inc_respuestas")
                         ),
                     bs4Card(
-                        title = "Género",
-                        collapsible = FALSE,
                         width = 4,
+                        title = "Género",
                         highchartOutput("inc_genero")
                         )
                     )
@@ -65,10 +70,12 @@ bs4DashPage(
             bs4TabItem(
                 tabName = "sintomas",
                 fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-stethoscope"), " Síntomas")
+                    ),
                     bs4Card(
                         title = "Síntomas",
-                        collapsible = FALSE,
-                        width = 6,
                         selectizeInput(
                             "snt_opt", NULL, 
                             choices = OPTS_SINTOMAS,
@@ -77,26 +84,39 @@ bs4DashPage(
                             width = "100%",
                             options = list(maxItems = 5)
                             ),
-                        highchartOutput("snt_hc_tlsnt")
+                        # 345 de altura debido al selectInput anterior
+                        highchartOutput("snt_hc_tlsnt", height = 345)
                     ),
                     bs4Card(
                         title = "Sospechoso",
-                        collapsible = FALSE,
-                        width = 6,
                         highchartOutput("snt_hc_sospc")
                     ),
                     bs4Card(
                         title = "Contacto estrecho",
-                        collapsible = FALSE,
-                        width = 6,
                         highchartOutput("snt_hc_contc")
                     ),
                     bs4Card(
                         title = "Confirmados y probables",
-                        collapsible = FALSE,
-                        width = 6,
                         highchartOutput("snt_hc_confm")
                     ),
+                )
+            ),
+            bs4TabItem(
+                tabName = "sistema",
+                fluidRow(
+                    column(12,
+                        tags$h2(tags$i(class = "fa fa-hospital-o"), " Sistema de Salud"),   
+                        selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
+                                       choices = OPTS_DESAGREGAR, width = "100%")
+                    ),
+                    bs4Card(
+                        title = "ssd_hc_medex",
+                        highchartOutput("ssd_hc_cslta") 
+                    ),
+                    bs4Card(
+                        title = "ssd_hc_examn",
+                        highchartOutput("ssd_hc_examn") 
+                    )
                 )
             )
         )

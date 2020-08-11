@@ -14,20 +14,33 @@ RMD_to_HTML <- function(file) {
   
 }
 
-bs4CardCustom <- purrr::partial(
+bs4CardMovid <- purrr::partial(
   bs4Card,
-  status = "primary",
-  solidHeader = TRUE, 
+  width = 6,
   collapsible = FALSE,
-  closable = FALSE,
-  elevation = 4,
-  width = 12
+  ... =
 )
 
-bs4CardHC <- purrr::partial(
-  bs4Card,
-  elevation = 1,
-  closable = FALSE,
-  width = 6,
-  collapsible = FALSE
-)
+bs4Card <- function(
+  ...,
+  inputId = NULL, title = NULL, footer = NULL, status = NULL,
+  elevation = 3, solidHeader = FALSE, headerBorder = TRUE,
+  gradientColor = NULL, width = 6, height = NULL, collapsible = FALSE,
+  collapsed = FALSE, closable = FALSE, maximizable = FALSE, 
+  cardLabel = NULL, dropdownMenu = NULL, overflow = FALSE,
+  sidebar = NULL) {
+  
+  # hack necesario para poder cambiar los defaults
+  # creo que se debe al doble ellipsis
+  
+  bs4Dash::bs4Card(
+    ..., 
+    inputId = inputId, title = title, footer = footer, status = status, 
+    elevation = elevation, solidHeader = solidHeader, headerBorder = headerBorder, 
+    gradientColor = gradientColor, width = width, height = height, collapsible = collapsible, 
+    collapsed = collapsed, closable = closable, maximizable = maximizable, 
+    cardLabel = cardLabel, dropdownMenu = dropdownMenu, overflow = overflow, 
+    sidebar = sidebar
+  )
+}
+

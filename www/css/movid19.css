@@ -1,3 +1,4 @@
-#snt_opt {
-  font-size: 20px;
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active, .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active {
+    background-color: #093C66;
+    color: #fff;
 }

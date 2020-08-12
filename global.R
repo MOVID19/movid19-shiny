@@ -80,7 +80,12 @@ options(
       title = list(
         style = list(fontFamily = "Montserrat")
       ),
-      colors = ggsci::pal_jama()(7)[-1],
+      # colors = ggsci::pal_jama()(7)[-1],
+      colors = c("#093C66",
+                 "#DCA11D",
+                 "#00C6BA",
+                 "#887456",
+                 "#ABCBFF"),
       xAxis = list(gridLineWidth = 1),
       yAxis = list(gridLineWidth = 1),
       plotOptions = list(

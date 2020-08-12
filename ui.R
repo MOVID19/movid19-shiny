@@ -1,7 +1,7 @@
 bs4DashPage(
     enable_preloader = TRUE,
     loading_duration = 1.5,
-    loading_background = "#00A1D5",
+    loading_background = "white",
     sidebar_collapsed = TRUE,
     navbar = bs4DashNavbar(),
     sidebar = bs4DashSidebar(
@@ -35,6 +35,11 @@ bs4DashPage(
                 text = "Percepción de riesgo",
                 tabName = "percepcion",
                 icon = "exclamation-triangle"
+            ),
+            bs4SidebarMenuItem(
+                text = "Mapas",
+                tabName = "mapas",
+                icon = "map-marked-alt"
             ),
             bs4SidebarMenuItem(
                 text = "Acerca de",
@@ -104,7 +109,8 @@ bs4DashPage(
             bs4TabItem(
                 tabName = "sistema",
                 fluidRow(
-                    column(12,
+                    column(
+                        12,
                         tags$h2(tags$i(class = "fa fa-hospital-o"), " Sistema de Salud"),   
                         selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
                                        choices = OPTS_DESAGREGAR, width = "100%")
@@ -116,6 +122,22 @@ bs4DashPage(
                     bs4Card(
                         title = "ssd_hc_examn",
                         highchartOutput("ssd_hc_examn") 
+                    )
+                )
+            ),
+            bs4TabItem(
+                tabName = "mapas",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-map-marked-alt"), " Mapas"),
+                        tags$iframe(
+                            src = "https://visualizaciones-movid.netlify.app",
+                            frameborder="0",
+                            style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;width:100%;top:0px;left:0px;right:0px;bottom:0px",
+                            height="700px", 
+                            width="100%"
+                            )
                     )
                 )
             )

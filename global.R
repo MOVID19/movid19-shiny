@@ -84,6 +84,7 @@ options(
       xAxis = list(gridLineWidth = 1),
       yAxis = list(gridLineWidth = 1),
       plotOptions = list(
+        line = list(marker = list(enabled = TRUE)),
         series = list(
           marker = list(symbol = "circle")
         )

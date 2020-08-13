@@ -3,6 +3,8 @@ input <- list(snt_opt = c("snt_tos", "snt_odinofagia"), ssd_opt = "sexo")
 
 shinyServer(function(input, output, session) {
   
+# inicio ------------------------------------------------------------------
+    
   output$inc_respuestas <- renderHighchart({
     
     movid %>%
@@ -14,7 +16,7 @@ shinyServer(function(input, output, session) {
       ) %>%
       hc_tooltip(shared = TRUE, table = TRUE) %>% 
       hc_xAxis(title = list(text = "")) %>% 
-      hc_yAxis(title = list(text = ""))
+      hc_yAxis(title = list(text = ""), min = 0)
     # %>% 
     #   hc_add_dependency("custom/appear.js")
     # 
@@ -31,6 +33,7 @@ shinyServer(function(input, output, session) {
         hcaes(name = sexo, y = n),
         innerSize = "75%",
         name = "Género",
+        tooltip = list(valueDecimals = 0, pointFormat = '<b>{point.y}</b><br/>'),
         dataLabels = list(
           format =  '{point.name} <span style="opacity: 0.4">{point.p}</span>'
         )
@@ -64,7 +67,7 @@ shinyServer(function(input, output, session) {
       ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
   })
 
@@ -93,7 +96,7 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
   })
   
@@ -115,7 +118,7 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
   })
   
@@ -139,7 +142,7 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
   })
 
@@ -148,7 +151,16 @@ shinyServer(function(input, output, session) {
   dssd <- reactive({
     
     dssd <- movid %>%
-      select(semana_fecha, all_of(input$ssd_opt), s2_consulta, sosp_minsal0326, s7_exmn_realizado) %>% 
+      select(
+        semana_fecha, 
+        all_of(input$ssd_opt), 
+        s2_consulta, 
+        sosp_minsal0326, 
+        s7_exmn_realizado,
+        s10_exmn_confirmado,
+        s4_consulta_dias,
+        s11_exmn_espera
+        ) %>% 
       rename_at(vars(2), ~"tipo")
       
     dssd
@@ -174,7 +186,7 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
   })
   
@@ -197,9 +209,98 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"))
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
   })
   
-      
+  output$ssd_hc_posit <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>%
+      filter(s7_exmn_realizado == 1) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(100 * s10_exmn_confirmado, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+    
+  })
+  
+  output$ssd_hc_ctads <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>%
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(s4_consulta_dias, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)
+    
+  })
+  
+  output$ssd_hc_exesp <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>%
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(s11_exmn_espera, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)
+    
+  })
+  
+  output$ssd_hc_ctaex <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>%
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(s4_consulta_dias + s11_exmn_espera, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)
+    
+  })
+  
+        
 })

@@ -4,6 +4,7 @@ bs4DashPage(
     loading_background = "white",
     sidebar_collapsed = TRUE,
     navbar = bs4DashNavbar(),
+# sidebar -----------------------------------------------------------------
     sidebar = bs4DashSidebar(
         title = NULL,
         expand_on_hover = TRUE,
@@ -48,11 +49,13 @@ bs4DashPage(
             )
         )
     ),
+# body --------------------------------------------------------------------
     body = bs4DashBody(
         tags$head(tags$link(rel="shortcut icon", href="fa.png")),
         tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/movid19.css")),
         tags$script(src = "js/movid19.js"),
         bs4TabItems(
+# inicio ------------------------------------------------------------------
             bs4TabItem(
                 tabName = "inicio",
                 fluidRow(
@@ -72,6 +75,7 @@ bs4DashPage(
                         )
                     )
                 ),
+# sintomas ----------------------------------------------------------------
             bs4TabItem(
                 tabName = "sintomas",
                 fluidRow(
@@ -106,6 +110,7 @@ bs4DashPage(
                     ),
                 )
             ),
+# sistema salud -----------------------------------------------------------
             bs4TabItem(
                 tabName = "sistema",
                 fluidRow(
@@ -122,9 +127,26 @@ bs4DashPage(
                     bs4Card(
                         title = "ssd_hc_examn",
                         highchartOutput("ssd_hc_examn") 
+                    ),
+                    bs4Card(
+                        title = "ssd_hc_posit",
+                        highchartOutput("ssd_hc_posit") 
+                    ),
+                    bs4Card(
+                        title = "ssd_hc_ctads",
+                        highchartOutput("ssd_hc_ctads") 
+                    ),
+                    bs4Card(
+                        title = "ssd_hc_exesp",
+                        highchartOutput("ssd_hc_exesp") 
+                    ),
+                    bs4Card(
+                        title = "ssd_hc_ctaex",
+                        highchartOutput("ssd_hc_ctaex") 
                     )
                 )
             ),
+# mapas -------------------------------------------------------------------
             bs4TabItem(
                 tabName = "mapas",
                 fluidRow(
@@ -143,4 +165,5 @@ bs4DashPage(
             )
         )
     )
+# end bs4DashPage ---------------------------------------------------------
 )

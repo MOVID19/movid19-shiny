@@ -3,8 +3,58 @@ input <- list(snt_opt = c("snt_tos", "snt_odinofagia"), ssd_opt = "sexo")
 
 shinyServer(function(input, output, session) {
   
-# inicio ------------------------------------------------------------------
+  cifras <- function() {
     
+    l <- list()
+    
+    d <- read_csv(
+      "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto3/CasosTotalesCumulativo.csv",
+      col_types = cols(
+        .default = col_double(),
+        Region = col_character()
+      )
+    )
+    
+    l[["casos_totales"]] <- d %>% 
+      filter(Region == "Total") %>%
+      select(last_col()) %>% 
+      pull()
+    
+    suppressMessages({
+      d <- read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto14/FallecidosCumulativo_T.csv")
+    })
+    
+    l[["fallecidos_totales"]] <- d %>% 
+      select(Total) %>% 
+      filter(row_number() == n()) %>% 
+      pull()
+    
+    
+    l[["respuestas"]] <- nrow(movid)
+    
+    l[["numero_participantes"]] <- 12345
+    
+    l
+      
+  }
+  
+  cifras_actuales <- cifras()
+  
+# inicio ------------------------------------------------------------------
+  
+  output$vb_casos <- renderValueBox({
+    valueBox(cifras_actuales$casos_totales, "Casos", icon = "lungs-virus")
+  })
+  output$vb_fallc <- renderValueBox({
+    valueBox(cifras_actuales$fallecidos_totales, "Fallecidos", icon = "bookmark")
+  })
+  output$vb_resps <- renderValueBox({
+    valueBox(cifras_actuales$respuestas, "Respuestas", icon = "list")
+  })
+  output$vb_partc <- renderValueBox({
+    valueBox(cifras_actuales$numero_participantes, "Participantes", icon = "users")
+  })
+  
   output$inc_respuestas <- renderHighchart({
     
     movid %>%
@@ -150,6 +200,9 @@ shinyServer(function(input, output, session) {
 
   dssd <- reactive({
     
+    # OPTS_DESAGREGAR
+    # input$ssd_opt <- "educ_3cat"
+    
     dssd <- movid %>%
       select(
         semana_fecha, 
@@ -162,7 +215,34 @@ shinyServer(function(input, output, session) {
         s11_exmn_espera
         ) %>% 
       rename_at(vars(2), ~"tipo")
-      
+    
+    # dssd %>% count(tipo, sort = TRUE)
+    # dssd %>%
+    #   count(tipo, sort = TRUE) %>% 
+    #   pull(tipo) %>% 
+    #   # setNames(rep(TRUE, length(.)), .) %>% 
+    #   dput()
+
+    tipo_detalles <- switch(
+      input$ssd_opt,
+      todo = c("Total" = TRUE),
+      sexo = c("Femenino" = TRUE, "Masculino" = TRUE, "Otro" = FALSE),
+      edad_3cat = c("18 a 39" = TRUE, "40 a 64" = TRUE, "65 y más" = TRUE),
+      prev = c("ISAPRE" = TRUE, "FONASA" = TRUE, "Ninguna" = FALSE, "Fuerzas Armadas y de Orden" = FALSE, "Otra" = FALSE),
+      pr3_ocupacion = c("Trabaja de manera remunerada" = TRUE, "Otra actividad (jubilado, pensionado, recibe pensión de invalidez u otro)" = TRUE, 
+                        "Desempleado o desempleada" = TRUE, "Quehaceres del hogar, cuidando niños y otras personas" = FALSE, 
+                        "Estudia" = FALSE),
+      educ_3cat = c("Profesional" = TRUE, "Técnica" = TRUE, "Media o menos" = TRUE)
+    )
+    
+    dssd <- dssd %>% 
+      filter(!is.na(tipo)) %>% 
+      mutate(tipo = factor(tipo, levels = names(tipo_detalles)))
+    
+    # dssd %>% count(tipo)
+    
+    attr(dssd, "visible") <- unname(tipo_detalles)
+    
     dssd
     
   })
@@ -182,7 +262,8 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = tipo)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
@@ -205,7 +286,8 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = tipo)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
@@ -228,7 +310,8 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = tipo)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
@@ -250,7 +333,8 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = tipo)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
@@ -272,7 +356,8 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = tipo)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
@@ -294,7 +379,8 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = tipo)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%

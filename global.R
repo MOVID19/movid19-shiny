@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
   library(shiny)
   library(bs4Dash)
   library(dplyr)
+  library(readr)
   library(tidyr)
   library(stringr)
   library(forcats)
@@ -89,7 +90,7 @@ options(
       xAxis = list(gridLineWidth = 1),
       yAxis = list(gridLineWidth = 1),
       plotOptions = list(
-        line = list(marker = list(enabled = TRUE)),
+        line = list(marker = list(enabled = FALSE), lineWidth = 4, opacity = 0.85),
         series = list(
           marker = list(symbol = "circle")
         )

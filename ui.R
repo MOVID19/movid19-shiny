@@ -63,10 +63,16 @@ bs4DashPage(
                         12,
                         tags$h2(tags$i(class = "fa fa-virus"), " Inicio")
                     ),
+                    
+                    valueBoxOutput("vb_casos", width = 3),
+                    valueBoxOutput("vb_fallc", width = 3),
+                    valueBoxOutput("vb_resps", width = 3),
+                    valueBoxOutput("vb_partc", width = 3),
+                    
                     bs4Card(
                         width = 8,
                         title = "Respuestas",
-                        highchartOutput("inc_respuestas")
+                        highchartOutput("inc_respuestas", height = "100%")
                         ),
                     bs4Card(
                         width = 4,

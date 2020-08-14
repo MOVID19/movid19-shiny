@@ -169,6 +169,14 @@ mv <- mv %>%
     todo = "Total"
   )
 
+# 20200814 ----------------------------------------------------------------
+mv <- mv %>% 
+  mutate(
+    prev = ifelse(stringr::str_detect(prev, "Otra"), "Otra", prev)
+  )
+
+
+
 # exportar ----------------------------------------------------------------
 saveRDS(mv, "data/movid.rds")
 

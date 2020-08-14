@@ -21,6 +21,21 @@ bs4CardMovid <- purrr::partial(
   ... =
 )
 
+
+valueBox <- function(value, subtitle, icon = NULL, elevation = 3, status = NULL, 
+                     width = 3, footer = NULL, href = NULL) {
+  
+  
+  value <- ifelse(is.numeric(value), scales::comma(value, big.mark = ".", decimal.mark = ","), value)
+  value <- tags$h1(value)
+  
+  bs4Dash::valueBox(
+    value, subtitle, icon = icon, elevation = elevation, status = status, 
+    width = width, footer = footer, href = href
+  )
+  
+}
+
 bs4Card <- function(
   ...,
   inputId = NULL, title = NULL, footer = NULL, status = NULL,

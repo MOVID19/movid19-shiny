@@ -61,7 +61,8 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-virus"), " Inicio")
+                        tags$h2(tags$i(class = "fa fa-virus"), " Inicio"),
+                        tags$hr()
                     ),
                     
                     valueBoxOutput("vb_casos", width = 3),
@@ -87,10 +88,11 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-stethoscope"), " Síntomas")
+                        tags$h2(tags$i(class = "fa fa-stethoscope"), " Síntomas"),
+                        tags$hr()
                     ),
                     bs4Card(
-                        title = "Síntomas",
+                        title = "Síntomas durante la última semana",
                         selectizeInput(
                             "snt_opt", NULL, 
                             choices = OPTS_SINTOMAS,
@@ -103,7 +105,7 @@ bs4DashPage(
                         highchartOutput("snt_hc_tlsnt", height = 345)
                     ),
                     bs4Card(
-                        title = "Sospechoso",
+                        title = "Indicador sospechoso",
                         highchartOutput("snt_hc_sospc")
                     ),
                     bs4Card(
@@ -122,33 +124,59 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-hospital-o"), " Sistema de Salud"),   
-                        selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
-                                       choices = OPTS_DESAGREGAR, width = "100%")
-                    ),
+                        tags$h2(tags$i(class = "fa fa-hospital-o"), " Sistema de Salud"),
+                        tags$hr()
+                        ),
+                    column(
+                        12,
+                        column(
+                            6,
+                            selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
+                                           choices = OPTS_DESAGREGAR, width = "100%")
+                            
+                            )
+                        ),
                     bs4Card(
-                        title = "ssd_hc_medex",
+                        title = "Consulta médica",
                         highchartOutput("ssd_hc_cslta") 
                     ),
                     bs4Card(
-                        title = "ssd_hc_examn",
+                        title = "Exámenes",
                         highchartOutput("ssd_hc_examn") 
                     ),
                     bs4Card(
-                        title = "ssd_hc_posit",
+                        title = "Confirmado",
                         highchartOutput("ssd_hc_posit") 
                     ),
                     bs4Card(
-                        title = "ssd_hc_ctads",
+                        title = "Días de espera consulta",
                         highchartOutput("ssd_hc_ctads") 
                     ),
                     bs4Card(
-                        title = "ssd_hc_exesp",
+                        title = "Días de espera entre toma y resultados",
                         highchartOutput("ssd_hc_exesp") 
                     ),
                     bs4Card(
-                        title = "ssd_hc_ctaex",
+                        title = "Días de espera entre sínotmas y resultados",
                         highchartOutput("ssd_hc_ctaex") 
+                    ),
+                    bs4Card(
+                        title = "Barreras consulta médica",
+                        selectizeInput(
+                            "s3c_opt", NULL,
+                            choices = OPTS_BARRERAS_CONSULTA,
+                            multiple = FALSE
+                        ),
+                        highchartOutput("ssd_hc_s3con", height = 345)
+                    ),
+                    bs4Card(
+                        title = "Barreras exámenes",
+                        selectizeInput(
+                            "s8e_opt", NULL,
+                            choices = OPTS_BARRERAS_EXAMEN,
+                            multiple = FALSE
+                        ),
+                        highchartOutput("ssd_hc_s8exm", height = 345)
                     )
                 )
             ),
@@ -159,6 +187,10 @@ bs4DashPage(
                     column(
                         12,
                         tags$h2(tags$i(class = "fa fa-map-marked-alt"), " Mapas"),
+                        tags$hr()
+                    ),
+                    column(
+                        12,
                         tags$iframe(
                             src = "https://visualizaciones-movid.netlify.app",
                             frameborder="0",
@@ -169,7 +201,8 @@ bs4DashPage(
                     )
                 )
             )
+# end bs4DashPage ---------------------------------------------------------
         )
     )
-# end bs4DashPage ---------------------------------------------------------
+
 )

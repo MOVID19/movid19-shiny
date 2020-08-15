@@ -58,6 +58,23 @@ OPTS_DESAGREGAR <- c(
   # residencia en comuna en cuarentena
 )
 
+OPTS_BARRERAS_CONSULTA <- movid %>%
+  head(1) %>% 
+  select(starts_with("s3_cons")) %>% 
+  names()
+
+OPTS_BARRERAS_CONSULTA <- setNames(OPTS_BARRERAS_CONSULTA, str_remove(OPTS_BARRERAS_CONSULTA, "s3_cons_"))
+
+OPTS_BARRERAS_EXAMEN <- movid %>%
+  head(1) %>% 
+  select(starts_with("s8_exmn")) %>% 
+  names()
+
+OPTS_BARRERAS_EXAMEN <- setNames(OPTS_BARRERAS_EXAMEN, str_remove(OPTS_BARRERAS_EXAMEN, "s8_exmn_"))
+
+
+# PRACTICAS ---------------------------------------------------------------
+
 
 
 # highcharter -------------------------------------------------------------
@@ -80,6 +97,9 @@ options(
       ),
       title = list(
         style = list(fontFamily = "Montserrat")
+      ),
+      subtitle = list(
+        style = list(fontFamily = "Roboto", fontSize = "12px")
       ),
       # colors = ggsci::pal_jama()(7)[-1],
       colors = c("#093C66",

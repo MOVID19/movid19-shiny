@@ -1,7 +1,12 @@
-input <- list(snt_opt = c("snt_tos", "snt_odinofagia"), ssd_opt = "todo")
-input <- list(snt_opt = c("snt_tos", "snt_odinofagia"), ssd_opt = "sexo")
+input <- list(
+  snt_opt = c("snt_tos", "snt_odinofagia"), 
+  ssd_opt = "sexo",
+  s3c_opt = "s3_cons_tiempo",
+  s8e_opt = "s8_exmn_tiempo")
 
 shinyServer(function(input, output, session) {
+  
+# inicio ------------------------------------------------------------------
   
   cifras <- function() {
     
@@ -32,15 +37,15 @@ shinyServer(function(input, output, session) {
     
     l[["respuestas"]] <- nrow(movid)
     
-    l[["numero_participantes"]] <- 12345
+    l[["numero_participantes"]] <- movid %>% 
+      distinct(pob_id) %>% 
+      nrow()
     
     l
       
   }
   
   cifras_actuales <- cifras()
-  
-# inicio ------------------------------------------------------------------
   
   output$vb_casos <- renderValueBox({
     valueBox(cifras_actuales$casos_totales, "Casos", icon = "lungs-virus")
@@ -57,7 +62,7 @@ shinyServer(function(input, output, session) {
   
   output$inc_respuestas <- renderHighchart({
     
-    movid %>%
+    hc <- movid %>%
       count(semana_fecha) %>% 
       hchart(
         "line",
@@ -67,6 +72,11 @@ shinyServer(function(input, output, session) {
       hc_tooltip(shared = TRUE, table = TRUE) %>% 
       hc_xAxis(title = list(text = "")) %>% 
       hc_yAxis(title = list(text = ""), min = 0)
+    
+    # htmlwidgets::saveWidget(hc, "chartiframe.html")
+    # fs::file_move("chartiframe.html", "www/chartiframe.html")
+    
+    hc
     # %>% 
     #   hc_add_dependency("custom/appear.js")
     # 
@@ -146,7 +156,8 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Es caso sospechoso según definición contenida en decreto sanitario y MOVID19")
     
   })
   
@@ -168,7 +179,8 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Ha tenido alguna forma de contacto con un paciente confirmado de enfermedad COVID19 en la última semana")
     
   })
   
@@ -192,7 +204,9 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Ha tenido alguna forma de contacto con un paciente confirmado de 
+                  enfermedad COVID19 o presenta al menos un síntoma en la última semana.")
     
   })
 
@@ -212,7 +226,9 @@ shinyServer(function(input, output, session) {
         s7_exmn_realizado,
         s10_exmn_confirmado,
         s4_consulta_dias,
-        s11_exmn_espera
+        s11_exmn_espera,
+        starts_with("s3_cons"),
+        starts_with("s8_exmn")
         ) %>% 
       rename_at(vars(2), ~"tipo")
     
@@ -246,7 +262,47 @@ shinyServer(function(input, output, session) {
     dssd
     
   })
-  
+
+  values <- reactiveValues(lastUpdated = NULL)
+
+  # observe ({
+  #   input[["ssd_opt"]]
+  #   values$lastUpdated <- "ssd_opt"
+  # })
+  # observe ({
+  #   input[["ssd_opt2"]]
+  #   values$lastUpdated <- "ssd_opt2"
+  # })
+# 
+#   observe({
+#     lapply(names(input), function(x) {
+#       observe({
+#         message("observe: ", x)
+#         input[[x]]
+#         values$lastUpdated <- x
+#       })
+#     })
+#   })
+# 
+#   observeEvent(input, {
+#     
+#     x <- values$lastUpdated
+#     message("observeEvent: ", x)
+#     v <- input[[x]]
+#     
+#     lapply(
+#       c("ssd_opt", "ssd_opt2"),
+#       function(x) {
+#        
+#         updateSelectInput(
+#           session = session,
+#           inputId = x,
+#           selected = v
+#           )
+#          
+#       })
+#   })
+#     
   output$ssd_hc_cslta <- renderHighchart({
     
     dssd <- dssd()
@@ -267,7 +323,8 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Consultó a un profesional de la salud por síntomas.")
     
   })
   
@@ -291,7 +348,10 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Se ha realizado uno o mas exámenes de enfermedad 
+                  COVID19, alguna vez para primera observación, en la última 
+                  semana para observaciones de seguimiento.")
     
   })
   
@@ -315,7 +375,9 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Recibió resultado positivo en algún examen para 
+                  enfermedad COVID19 realizado durante la última semana.")
     
   })
   
@@ -338,7 +400,9 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
+      hc_subtitle(text = "Promedio de días de espera entre inicio de síntomas y 
+                  consulta al médico.")
     
   })
   
@@ -361,7 +425,9 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
+      hc_subtitle(text = "Promedio de días de espera entre toma y 
+                  resultado del test diagnóstico ")
     
   })
   
@@ -384,9 +450,67 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
+      hc_subtitle(text = "Promedio de días de espera entre inicio de síntomas y 
+                  resultado del test diagnóstico.")
     
   })
+  
+  output$ssd_hc_s3con <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    dssd <- dssd %>%
+      select(all_of(input$s3c_opt), everything()) %>% 
+      rename_at(vars(1), ~ "variable")
+    
+    d <- dssd %>%
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(variable, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
+      hc_title(text = input$s3c_opt)
+    
+  })
+  
+  output$ssd_hc_s8exm <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    dssd <- dssd %>%
+      select(all_of(input$s8e_opt), everything()) %>% 
+      rename_at(vars(1), ~ "variable")
+    
+    d <- dssd %>%
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(variable, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
+      hc_title(text = input$s8e_opt)
+    
+  })  
   
         
 })

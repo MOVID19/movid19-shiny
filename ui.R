@@ -71,15 +71,15 @@ bs4DashPage(
                     valueBoxOutput("vb_partc", width = 3),
                     
                     bs4Card(
-                        width = 8,
+                        width = 12,
                         title = "Respuestas",
                         highchartOutput("inc_respuestas", height = "100%")
                         ),
-                    bs4Card(
-                        width = 4,
-                        title = "Género",
-                        highchartOutput("inc_genero")
-                        )
+                    # bs4Card(
+                    #     width = 4,
+                    #     title = "Género",
+                    #     highchartOutput("inc_genero")
+                    #     )
                     )
                 ),
 # sintomas ----------------------------------------------------------------
@@ -105,7 +105,7 @@ bs4DashPage(
                         highchartOutput("snt_hc_tlsnt", height = 345)
                     ),
                     bs4Card(
-                        title = "Indicador sospechoso",
+                        title = "Casos sospechosos",
                         highchartOutput("snt_hc_sospc")
                     ),
                     bs4Card(
@@ -161,23 +161,31 @@ bs4DashPage(
                         highchartOutput("ssd_hc_ctaex") 
                     ),
                     bs4Card(
-                        title = "Barreras consulta médica",
-                        selectizeInput(
-                            "s3c_opt", NULL,
-                            choices = OPTS_BARRERAS_CONSULTA,
-                            multiple = FALSE
+                        width = 12,
+                        title = "Razones para no consultar a profesional o no realizarse exámen",
+                        fluidRow(
+                            column(
+                                6,
+                                selectizeInput(
+                                    "razones_opt", NULL,
+                                    choices = OPTS_RAZONES,
+                                    multiple = FALSE,
+                                    width = "100%"
+                                )
+                            )
                         ),
-                        highchartOutput("ssd_hc_s3con", height = 345)
+                        fluidRow(
+                            column(
+                                6,
+                                highchartOutput("ssd_hc_s3con", height = 345)
+                            ),
+                            column(
+                                6,
+                                highchartOutput("ssd_hc_s8exm", height = 345)
+                            )
+                        )
+                       
                     ),
-                    bs4Card(
-                        title = "Barreras exámenes",
-                        selectizeInput(
-                            "s8e_opt", NULL,
-                            choices = OPTS_BARRERAS_EXAMEN,
-                            multiple = FALSE
-                        ),
-                        highchartOutput("ssd_hc_s8exm", height = 345)
-                    )
                 )
             ),
 # mapas -------------------------------------------------------------------

@@ -1,8 +1,8 @@
 input <- list(
   snt_opt = c("snt_tos", "snt_odinofagia"), 
   ssd_opt = "sexo",
-  s3c_opt = "s3_cons_tiempo",
-  s8e_opt = "s8_exmn_tiempo")
+  razones_opt = "tiempo"
+  )
 
 shinyServer(function(input, output, session) {
   
@@ -48,16 +48,28 @@ shinyServer(function(input, output, session) {
   cifras_actuales <- cifras()
   
   output$vb_casos <- renderValueBox({
-    valueBox(cifras_actuales$casos_totales, "Casos", icon = "lungs-virus")
+    valueBox(
+      cifras_actuales$casos_totales, "Casos", icon = "lungs-virus", 
+      footer = tags$small("Fuente ", tags$a("MINSAL (2020)", href = "https://www.gob.cl/coronavirus/cifrasoficiales/"))
+      )
   })
   output$vb_fallc <- renderValueBox({
-    valueBox(cifras_actuales$fallecidos_totales, "Fallecidos", icon = "bookmark")
+    valueBox(
+      cifras_actuales$fallecidos_totales, "Fallecidos", icon = "bookmark",
+      footer = tags$small("Fuente ", tags$a("MINSAL (2020)", href = "https://www.gob.cl/coronavirus/cifrasoficiales/"))
+      )
   })
   output$vb_resps <- renderValueBox({
-    valueBox(cifras_actuales$respuestas, "Respuestas", icon = "list")
+    valueBox(
+      cifras_actuales$respuestas, "Respuestas", icon = "list",
+      footer = tags$small("MOVID19")
+      )
   })
   output$vb_partc <- renderValueBox({
-    valueBox(cifras_actuales$numero_participantes, "Participantes", icon = "users")
+    valueBox(
+      cifras_actuales$numero_participantes, "Participantes", icon = "users",
+      footer = tags$small("MOVID19")
+      )
   })
   
   output$inc_respuestas <- renderHighchart({
@@ -69,7 +81,7 @@ shinyServer(function(input, output, session) {
         hcaes(semana_fecha, n),
         name = "Cantidad de respuestas"
       ) %>%
-      hc_tooltip(shared = TRUE, table = TRUE) %>% 
+      hc_tooltip(shared = TRUE, table = TRUE, valueDecimals = 0) %>% 
       hc_xAxis(title = list(text = "")) %>% 
       hc_yAxis(title = list(text = ""), min = 0)
     
@@ -461,7 +473,7 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     dssd <- dssd %>%
-      select(all_of(input$s3c_opt), everything()) %>% 
+      select(all_of(str_c("s3_cons_", input$razones_opt)), everything()) %>% 
       rename_at(vars(1), ~ "variable")
     
     d <- dssd %>%
@@ -480,7 +492,7 @@ shinyServer(function(input, output, session) {
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
-      hc_title(text = input$s3c_opt)
+      hc_title(text = "Rzones para no consultar profesional")
     
   })
   
@@ -489,7 +501,7 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     dssd <- dssd %>%
-      select(all_of(input$s8e_opt), everything()) %>% 
+      select(all_of(str_c("s8_exmn_", input$razones_opt)), everything()) %>% 
       rename_at(vars(1), ~ "variable")
     
     d <- dssd %>%
@@ -507,8 +519,8 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
-      hc_title(text = input$s8e_opt)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)  %>% 
+      hc_title(text = "Rzones para no realizarse exámen indicado por profesional")
     
   })  
   

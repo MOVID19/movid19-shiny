@@ -58,19 +58,17 @@ OPTS_DESAGREGAR <- c(
   # residencia en comuna en cuarentena
 )
 
-OPTS_BARRERAS_CONSULTA <- movid %>%
-  head(1) %>% 
-  select(starts_with("s3_cons")) %>% 
-  names()
-
-OPTS_BARRERAS_CONSULTA <- setNames(OPTS_BARRERAS_CONSULTA, str_remove(OPTS_BARRERAS_CONSULTA, "s3_cons_"))
-
-OPTS_BARRERAS_EXAMEN <- movid %>%
-  head(1) %>% 
-  select(starts_with("s8_exmn")) %>% 
-  names()
-
-OPTS_BARRERAS_EXAMEN <- setNames(OPTS_BARRERAS_EXAMEN, str_remove(OPTS_BARRERAS_EXAMEN, "s8_exmn_"))
+OPTS_RAZONES <- c(
+  "Porque no le pareció importante" = "nimporta",
+  "Por el costo económico" = "costo",
+  "Porque no sabía dónde realizarlo" = "nosabia",
+  "Porque tenía que esperar mucho tiempo" = "tiempo",
+  "Porque está evaluando si los síntomas empeoran antes de consultar" = "empeorar",
+  "Por miedo a contagiarse" = "temor",
+  "Porque los síntomas son leves o habituales" = "leves",
+  "Por que el sistema de salud está muy lleno" = "sistlleno",
+  "Otra" = "otra"
+)
 
 
 # PRACTICAS ---------------------------------------------------------------
@@ -96,7 +94,7 @@ options(
         style = list(fontFamily = "Roboto")
       ),
       title = list(
-        style = list(fontFamily = "Montserrat")
+        style = list(fontFamily = "Source Sans Pro")
       ),
       subtitle = list(
         style = list(fontFamily = "Roboto", fontSize = "12px")

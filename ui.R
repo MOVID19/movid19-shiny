@@ -29,7 +29,7 @@ bs4DashPage(
             ),
             bs4SidebarMenuItem(
                 text = "Prácticas sociales",
-                tabName = "Social",
+                tabName = "social",
                 icon = "users"
             ),
             bs4SidebarMenuItem(
@@ -112,10 +112,10 @@ bs4DashPage(
                         title = "Contacto estrecho",
                         highchartOutput("snt_hc_contc")
                     ),
-                    bs4Card(
-                        title = "Confirmados y probables",
-                        highchartOutput("snt_hc_confm")
-                    ),
+                    # bs4Card(
+                    #     title = "Confirmados y probables",
+                    #     highchartOutput("snt_hc_confm")
+                    # ),
                 )
             ),
 # sistema salud -----------------------------------------------------------
@@ -186,6 +186,47 @@ bs4DashPage(
                         )
                        
                     ),
+                )
+            ),
+
+# prácticas sociales ------------------------------------------------------
+            bs4TabItem(
+                tabName = "social",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-users"), " Prácticas Sociales"),
+                        tags$hr()
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Promedio frecuencia de salida",
+                        highchartOutput("pcsoc_frec_salida") 
+                    ),
+                    bs4Card(
+                        title = "Proporción de personas que salen al menos 2 veces por semana",
+                        highchartOutput("pcsoc_prop2") 
+                    ),
+                    bs4Card(
+                        title = "Proporción de personas que no salen",
+                        highchartOutput("pcsoc_nosalen") 
+                    ),
+                )
+            ),
+# percepción riesgo -------------------------------------------------------
+            bs4TabItem(
+                tabName = "percepcion",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-exclamation-triangle"), " Percepción de riesgo"),
+                        tags$hr()
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Promedio frecuencia de salida",
+                        highchartOutput("pcsoc_frec_salida") 
+                    )
                 )
             ),
 # mapas -------------------------------------------------------------------

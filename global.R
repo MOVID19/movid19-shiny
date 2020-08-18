@@ -72,6 +72,13 @@ OPTS_RAZONES <- c(
 
 
 # PRACTICAS ---------------------------------------------------------------
+PRACTICAS_DF <- tibble(
+  tipo = c("p1_pra_trabajo", "p1_pra_tramite", "p1_pra_recrea", "p1_pra_visita", 
+    "p1_pra_invitado", "p1_pra_transporte"),
+  tipo_lbl = c("Trabajar", "Trámite", "Recreación", "Visitar amigos o familiares",
+               "Recibido vistias de amigos o familiares", "Utilizado transporte público")
+) %>% 
+  mutate(tipo_lbl = fct_inorder(tipo_lbl))
 
 
 

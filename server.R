@@ -50,13 +50,13 @@ shinyServer(function(input, output, session) {
   output$vb_casos <- renderValueBox({
     valueBox(
       cifras_actuales$casos_totales, "Casos", icon = "lungs-virus", 
-      footer = tags$small("Fuente ", tags$a("MINSAL (2020)", href = "https://www.gob.cl/coronavirus/cifrasoficiales/"))
+      footer = tags$small("Fuente ", tags$a("MINSAL (2020)", target="_blank", href = "https://www.gob.cl/coronavirus/cifrasoficiales/"))
       )
   })
   output$vb_fallc <- renderValueBox({
     valueBox(
       cifras_actuales$fallecidos_totales, "Fallecidos", icon = "bookmark",
-      footer = tags$small("Fuente ", tags$a("MINSAL (2020)", href = "https://www.gob.cl/coronavirus/cifrasoficiales/"))
+      footer = tags$small("Fuente ", tags$a("MINSAL (2020)", target="_blank", href = "https://www.gob.cl/coronavirus/cifrasoficiales/"))
       )
   })
   output$vb_resps <- renderValueBox({
@@ -523,6 +523,75 @@ shinyServer(function(input, output, session) {
       hc_title(text = "Razones para no realizarse exámen indicado por profesional")
     
   })  
+  
+
+# prácticas sociales ------------------------------------------------------
+
+  output$pcsoc_frec_salida <- renderHighchart({
+    
+    d <- movid %>% 
+      select(semana_fecha, contains("p1_pra"), -p1_pra_otro_TEXT, -p1_pra_otro) %>% 
+      gather(tipo, valor, -semana_fecha) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(promedio = mean(valor, na.rm = TRUE), .groups = "drop") %>% 
+      left_join(PRACTICAS_DF, by = "tipo") %>% 
+      arrange(semana_fecha, tipo_lbl)
+  
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, promedio, group = tipo_lbl)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)  
+    
+  })  
+  
+  output$pcsoc_prop2 <- renderHighchart({
+    
+    d <- movid %>% 
+      select(semana_fecha, contains("p1_pra"), -p1_pra_otro_TEXT, -p1_pra_otro) %>% 
+      gather(tipo, valor, -semana_fecha) %>%
+      mutate(valor = valor >= 2) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(proporcion = mean(100 * valor, na.rm = TRUE), .groups = "drop") %>% 
+      left_join(PRACTICAS_DF, by = "tipo") %>% 
+      arrange(semana_fecha, tipo_lbl)
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)  
+    
+  }) 
+  
+  output$pcsoc_nosalen <- renderHighchart({
+    
+    d <- movid %>% 
+      select(semana_fecha, contains("p1_pra"), -p1_pra_otro_TEXT, -p1_pra_otro) %>% 
+      gather(tipo, valor, -semana_fecha) %>%
+      mutate(valor = valor == 0) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(proporcion = mean(100 * valor, na.rm = TRUE), .groups = "drop") %>% 
+      left_join(PRACTICAS_DF, by = "tipo") %>% 
+      arrange(semana_fecha, tipo_lbl)
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
+    
+  })  
+  
   
         
 })

@@ -224,8 +224,8 @@ bs4DashPage(
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Promedio frecuencia de salida",
-                        highchartOutput("pcsoc_frec_salida") 
+                        title = "Proporción de personas que consideran el COVID19 un problea de alto riesgo",
+                        highchartOutput("persgo_alto") 
                     )
                 )
             ),

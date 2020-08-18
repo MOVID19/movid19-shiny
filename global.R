@@ -111,7 +111,10 @@ options(
                  "#DCA11D",
                  "#00C6BA",
                  "#887456",
-                 "#ABCBFF"),
+                 "#ABCBFF",
+                 # falta opcion, agrego rojo
+                 "#d35400"
+                 ),
       xAxis = list(gridLineWidth = 1),
       yAxis = list(gridLineWidth = 1),
       plotOptions = list(

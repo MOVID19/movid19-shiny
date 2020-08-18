@@ -592,6 +592,12 @@ shinyServer(function(input, output, session) {
     
   })  
   
+# percepcion de riesgo ----------------------------------------------------
+
+  output$persgo_alto <- renderHighchart({
+    
+    
+  })
   
         
 })

@@ -145,7 +145,7 @@ bs4DashPage(
                         highchartOutput("ssd_hc_examn") 
                     ),
                     bs4Card(
-                        title = "Confirmado",
+                        title = "Confirmación a través de examen COVID-19",
                         highchartOutput("ssd_hc_posit") 
                     ),
                     bs4Card(
@@ -153,7 +153,7 @@ bs4DashPage(
                         highchartOutput("ssd_hc_ctads") 
                     ),
                     bs4Card(
-                        title = "Días de espera entre toma y resultados",
+                        title = "Días de espera entre toma examen y resultados",
                         highchartOutput("ssd_hc_exesp") 
                     ),
                     bs4Card(

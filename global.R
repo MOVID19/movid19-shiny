@@ -94,10 +94,10 @@ options(
         style = list(fontFamily = "Roboto")
       ),
       title = list(
-        style = list(fontFamily = "Source Sans Pro")
+        style = list(fontFamily = "Source Sans Pro", fontWeight  = "normal")
       ),
       subtitle = list(
-        style = list(fontFamily = "Roboto", fontSize = "12px")
+        style = list(fontFamily = "Roboto", fontSize = "12px", fontWeight  = "normal")
       ),
       # colors = ggsci::pal_jama()(7)[-1],
       colors = c("#093C66",

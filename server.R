@@ -361,9 +361,9 @@ shinyServer(function(input, output, session) {
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(text = "Se ha realizado uno o mas exámenes de enfermedad 
-                  COVID19, alguna vez para primera observación, en la última 
-                  semana para observaciones de seguimiento.")
+      hc_subtitle(text = "Se ha realizado uno o más exámenes de enfermedad COVID19 
+                  (alguna vez para primeras observaciones o en la última semana 
+                  para observaciones de seguimiento).")
     
   })
   
@@ -414,7 +414,7 @@ shinyServer(function(input, output, session) {
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
       hc_subtitle(text = "Promedio de días de espera entre inicio de síntomas y 
-                  consulta al médico.")
+                  consulta al médico (casos que reportan presencia de síntomas).")
     
   })
   
@@ -479,7 +479,7 @@ shinyServer(function(input, output, session) {
     d <- dssd %>%
       group_by(semana_fecha, tipo) %>% 
       summarise(
-        proporcion = mean(variable, na.rm = TRUE),
+        proporcion = mean(100 * variable, na.rm = TRUE),
         .groups = "drop"
       )
     
@@ -491,8 +491,8 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
-      hc_title(text = "Rzones para no consultar profesional")
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_title(text = "Razones para no consultar profesional")
     
   })
   
@@ -507,7 +507,7 @@ shinyServer(function(input, output, session) {
     d <- dssd %>%
       group_by(semana_fecha, tipo) %>% 
       summarise(
-        proporcion = mean(variable, na.rm = TRUE),
+        proporcion = mean(100 * variable, na.rm = TRUE),
         .groups = "drop"
       )
     
@@ -519,8 +519,8 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)  %>% 
-      hc_title(text = "Rzones para no realizarse exámen indicado por profesional")
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)  %>% 
+      hc_title(text = "Razones para no realizarse exámen indicado por profesional")
     
   })  
   

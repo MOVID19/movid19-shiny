@@ -1,5 +1,5 @@
 bs4DashPage(
-    enable_preloader = TRUE,
+    enable_preloader = FALSE,
     loading_duration = 1.5,
     loading_background = "white",
     sidebar_collapsed = TRUE,
@@ -43,6 +43,11 @@ bs4DashPage(
                 icon = "map-marked-alt"
             ),
             bs4SidebarMenuItem(
+                text = "Participantes",
+                tabName = "particpantes",
+                icon = "user-friends"
+            ),
+            bs4SidebarMenuItem(
                 text = "Acerca de",
                 tabName = "acerca",
                 icon = "question-circle"
@@ -51,9 +56,13 @@ bs4DashPage(
     ),
 # body --------------------------------------------------------------------
     body = bs4DashBody(
+        
+        useSweetAlert(theme = "minimal"),
+        use_cicerone(),
         tags$head(tags$link(rel="shortcut icon", href="fa.png")),
         tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/movid19.css")),
         tags$script(src = "js/movid19.js"),
+        
         bs4TabItems(
 # inicio ------------------------------------------------------------------
             bs4TabItem(
@@ -224,7 +233,7 @@ bs4DashPage(
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que consideran el COVID19 un problea de alto riesgo",
+                        title = "Proporción de personas que consideran el COVID19 un problema de alto riesgo",
                         highchartOutput("persgo_alto") 
                     )
                 )

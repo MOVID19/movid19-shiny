@@ -6,6 +6,33 @@ input <- list(
 
 shinyServer(function(input, output, session) {
   
+  ask_confirmation(
+    inputId = "tour",
+    type = "info",
+    # title = "¡Bienvenido a MOVID-app!",
+    text = tags$span(
+      tags$h3("Bienvenido a MOVID-app"),
+      tags$small("Si eres nuevo te invitamos a tomar el tour 
+      para conocer como usar el app")
+    ),
+    btn_labels = c("Cerrar", "A Tomar el tour"),
+    btn_colors = c("", "#093C66"),
+    showCloseButton = TRUE,
+    html = TRUE
+  )
+  
+  observeEvent(input$tour, {
+
+    # TRUE
+    if(input$tour) {
+      
+      # initialise then start the guide
+      guide$init()$start()
+      
+    }
+    
+  })
+  
 # inicio ------------------------------------------------------------------
   
   cifras <- function() {
@@ -530,7 +557,7 @@ shinyServer(function(input, output, session) {
   output$pcsoc_frec_salida <- renderHighchart({
     
     d <- movid %>% 
-      select(semana_fecha, contains("p1_pra"), -p1_pra_otro_TEXT, -p1_pra_otro) %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro")) %>% 
       gather(tipo, valor, -semana_fecha) %>% 
       group_by(semana_fecha, tipo) %>% 
       summarise(promedio = mean(valor, na.rm = TRUE), .groups = "drop") %>% 
@@ -551,7 +578,7 @@ shinyServer(function(input, output, session) {
   output$pcsoc_prop2 <- renderHighchart({
     
     d <- movid %>% 
-      select(semana_fecha, contains("p1_pra"), -p1_pra_otro_TEXT, -p1_pra_otro) %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro")) %>% 
       gather(tipo, valor, -semana_fecha) %>%
       mutate(valor = valor >= 2) %>% 
       group_by(semana_fecha, tipo) %>% 
@@ -573,7 +600,7 @@ shinyServer(function(input, output, session) {
   output$pcsoc_nosalen <- renderHighchart({
     
     d <- movid %>% 
-      select(semana_fecha, contains("p1_pra"), -p1_pra_otro_TEXT, -p1_pra_otro) %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro")) %>% 
       gather(tipo, valor, -semana_fecha) %>%
       mutate(valor = valor == 0) %>% 
       group_by(semana_fecha, tipo) %>% 
@@ -595,6 +622,23 @@ shinyServer(function(input, output, session) {
 # percepcion de riesgo ----------------------------------------------------
 
   output$persgo_alto <- renderHighchart({
+    
+    movid$cr1_per_riesgo
+    
+    d <- movid %>% 
+      count(semana_fecha, tipo_lbl = cr1_per_riesgo) %>% 
+      filter(!is.na(tipo_lbl)) %>% 
+      group_by(semana_fecha) %>% 
+      mutate(proporcion = round(100 * n/sum(n), 2))
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
     
     
   })

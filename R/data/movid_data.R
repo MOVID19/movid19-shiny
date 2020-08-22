@@ -176,6 +176,23 @@ mv <- mv %>%
   )
 
 
+# -------------------------------------------------------------------------
+# mv <- mv %>%
+#   select(
+#     -contains("TEXT"),
+#     -starts_with("sa3"),
+#     -starts_with("sa2"),
+#     -starts_with("c7"),
+#     -starts_with("c6"),
+#     -starts_with("pr"),
+#     -edad_65,
+#     -RM,
+#     -comuna,
+#     -semana,
+#     -semana0,
+#     -region
+#     )
+
 
 # exportar ----------------------------------------------------------------
 saveRDS(mv, "data/movid.rds")

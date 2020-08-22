@@ -1,3 +1,4 @@
+# setup -------------------------------------------------------------------
 message("global.R")
 
 suppressPackageStartupMessages({
@@ -12,6 +13,8 @@ suppressPackageStartupMessages({
   library(highcharter)
   library(shinyWidgets)
   library(ggsci)
+  library(shinyWidgets)
+  library(cicerone)
   
 })
 
@@ -71,7 +74,7 @@ OPTS_RAZONES <- c(
 )
 
 
-# PRACTICAS ---------------------------------------------------------------
+# practicas ---------------------------------------------------------------
 PRACTICAS_DF <- tibble(
   tipo = c("p1_pra_trabajo", "p1_pra_tramite", "p1_pra_recrea", "p1_pra_visita", 
     "p1_pra_invitado", "p1_pra_transporte"),
@@ -83,17 +86,30 @@ PRACTICAS_DF <- tibble(
 
 
 # highcharter -------------------------------------------------------------
-newlang_opts <- getOption("highcharter.lang")
-newlang_opts$weekdays <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
-newlang_opts$months <- c("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", 
+hc_lang <- getOption("highcharter.lang")
+hc_lang$weekdays <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
+hc_lang$months <- c("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", 
                          "agosto", "septiembre", "octubre", "noviembre", "diciembre")
-newlang_opts$shortMonths <- c("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", 
+hc_lang$shortMonths <- c("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", 
                               "oct", "nov", "dic")
-newlang_opts$thousandsSep <- "."
-newlang_opts$decimalPoint <- ","
+hc_lang$thousandsSep <- "."
+hc_lang$decimalPoint <- ","
+hc_lang$downloadJPEG <- "Descargar imagen"
+hc_lang$downloadXLS <- "Descargar excel"
+hc_lang$viewFullscreen <- "Ver en pantalla completa"
+ 
+
+hc_chart <- getOption("highcharter.chart")
+hc_chart$exporting <- list(enabled = TRUE)
+hc_chart$credits <- list(
+  enbled = TRUE,
+  href = "https://www.movid19.cl/",
+  text = "MOVID19"
+)
 
 options(
-  highcharter.lang = newlang_opts,
+  highcharter.chart = hc_chart,
+  highcharter.lang  = hc_lang,
   highcharter.google_fonts = TRUE,
   highcharter.theme = 
     hc_theme_smpl(
@@ -133,6 +149,53 @@ options(
         itemStyle =  list(
           fontWeight = "normal"
         )
+      ),
+      exporting = list(
+        buttons = list(
+          contextButton = list(
+            symbol = "url(https://icon-library.com/images/3-dots-icon/3-dots-icon-28.jpg)",
+            symbolSize = 18,
+            symbolX = 21,
+            symbolY = 20,
+            titleKey = "Descargar",
+            y = -05,
+            menuItems = c("downloadJPEG", "downloadXLS", "viewFullscreen")
+            )
+          )
+        )
       )
-    )
-)
+  )
+
+
+# tour --------------------------------------------------------------------
+guide <- Cicerone$
+  new(
+    next_btn_text = "Siguiente",
+    stage_background = "#F5F5F5",
+    prev_btn_text = "Anterior",
+    done_btn_text = "¡Listo!",
+    close_btn_text = "Cerrar"
+  )$ 
+  step(
+    el = "sidebarItemExpanded",
+    title = "Secciones del dashboard",
+    description = "Cada sección esta asociada a ciertos estudios relevantes
+    de la encuesta MOVID19",
+    position = "right-center"
+  )$
+  step(
+    "shiny-tab-inicio",
+    "Sección",
+    "Cadad sección posee visualizaciones las cuales puedes controlar con 
+    selectores que aparecen en la misma sección.",
+    position = "mid-center"
+  )$
+  step(
+    "inc_respuestas",
+    "Gráficos",
+    "Cada uno de los gráficos es interactivo, y en cada uno de ellos puedes
+    descargar tanto la visualización como imagen o los datos como excel haciendo click 
+    en el ícono superior derecho.",
+    position = "mid-center"
+  )
+

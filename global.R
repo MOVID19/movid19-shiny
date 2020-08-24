@@ -21,11 +21,18 @@ suppressPackageStartupMessages({
 # data --------------------------------------------------------------------
 movid <- readRDS("data/movid.rds")
 
-# # demograficas
-# movid$sexo      %>% table()
-# movid$prev      %>% table()
-# movid$edad_3cat %>% table()
-# movid$educ_3cat %>% table()
+movid <- movid %>% 
+  mutate(
+    sexo = factor(sexo, levels = c("Femenino", "Masculino", "Otro")),
+    edad_3cat = factor(edad_3cat, levels = c("18 a 39", "40 a 64", "65 y más")),
+    prev = factor(prev, levels = c("ISAPRE", "FONASA", "Ninguna", "Fuerzas Armadas y de Orden", 
+                                   "Otra")),
+    pr3_ocupacion = factor(pr3_ocupacion, levels = c("Trabaja de manera remunerada", "Otra actividad (jubilado, pensionado, recibe pensión de invalidez u otro)", 
+                                                     "Desempleado o desempleada", "Quehaceres del hogar, cuidando niños y otras personas", 
+                                                     "Estudia")),
+    educ_3cat = factor(educ_3cat, levels = c("Profesional", "Técnica", "Media o menos")) 
+  )
+
 
 # sintomas ----------------------------------------------------------------
 OPTS_SINTOMAS <- c(
@@ -47,6 +54,12 @@ OPTS_SINTOMAS_DF <- OPTS_SINTOMAS %>%
   tibble::enframe() %>% 
   unnest(cols = c(value)) %>% 
   mutate(value = paste0("s1_", value))
+
+OPTS_SOSPECHOSO_DEFINICION <- c(
+  `Definición MINSAL actual`  = "sosp_minsal0530",
+  `Definición MINSAL inicial` = "sosp_minsal0326",
+  `Definición MOVID19`        = "sosp_movid19"
+)
 
 
 # sistema salud -----------------------------------------------------------
@@ -179,14 +192,14 @@ guide <- Cicerone$
   step(
     el = "sidebarItemExpanded",
     title = "Secciones del dashboard",
-    description = "Cada sección esta asociada a ciertos estudios relevantes
-    de la encuesta MOVID19",
+    description = "Cada sección esta asociada a ciertos aspectos relevantes
+    de la encuesta MOVID19.",
     position = "right-center"
   )$
   step(
     "shiny-tab-inicio",
     "Sección",
-    "Cadad sección posee visualizaciones las cuales puedes controlar con 
+    "Cada sección posee visualizaciones las cuales puedes controlar con 
     selectores que aparecen en la misma sección.",
     position = "mid-center"
   )$
@@ -194,8 +207,8 @@ guide <- Cicerone$
     "inc_respuestas",
     "Gráficos",
     "Cada uno de los gráficos es interactivo, y en cada uno de ellos puedes
-    descargar tanto la visualización como imagen o los datos como excel haciendo click 
-    en el ícono superior derecho.",
+    descargar tanto la visualización como imagen o los datos en un archivo
+    excel haciendo click en el ícono superior derecho.",
     position = "mid-center"
   )
 

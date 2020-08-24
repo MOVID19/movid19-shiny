@@ -38,14 +38,14 @@ bs4DashPage(
                 icon = "exclamation-triangle"
             ),
             bs4SidebarMenuItem(
+                text = "Participantes",
+                tabName = "participantes",
+                icon = "user-friends"
+            ),
+            bs4SidebarMenuItem(
                 text = "Mapas",
                 tabName = "mapas",
                 icon = "map-marked-alt"
-            ),
-            bs4SidebarMenuItem(
-                text = "Participantes",
-                tabName = "particpantes",
-                icon = "user-friends"
             ),
             bs4SidebarMenuItem(
                 text = "Acerca de",
@@ -100,8 +100,18 @@ bs4DashPage(
                         tags$h2(tags$i(class = "fa fa-stethoscope"), " Síntomas"),
                         tags$hr()
                     ),
+                    column(
+                        12,
+                        column(
+                            6,
+                            selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
+                                           choices = OPTS_DESAGREGAR, width = "100%")
+                            
+                        )
+                    ),
                     bs4Card(
                         title = "Síntomas durante la última semana",
+                        width = 12,
                         selectizeInput(
                             "snt_opt", NULL, 
                             choices = OPTS_SINTOMAS,
@@ -115,7 +125,12 @@ bs4DashPage(
                     ),
                     bs4Card(
                         title = "Casos sospechosos",
-                        highchartOutput("snt_hc_sospc")
+                        selectizeInput(
+                            "snt_sos", NULL, 
+                            choices = OPTS_SOSPECHOSO_DEFINICION, 
+                            width = "100%"
+                        ),
+                        highchartOutput("snt_hc_sospc", height = 345)
                     ),
                     bs4Card(
                         title = "Contacto estrecho",
@@ -140,7 +155,7 @@ bs4DashPage(
                         12,
                         column(
                             6,
-                            selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
+                            selectizeInput("ssd_opt2", "Seleccione variable para desagregar", 
                                            choices = OPTS_DESAGREGAR, width = "100%")
                             
                             )
@@ -236,6 +251,43 @@ bs4DashPage(
                         title = "Proporción de personas que consideran el COVID19 un problema de alto riesgo",
                         highchartOutput("persgo_alto") 
                     )
+                )
+            ),
+
+# participantes -----------------------------------------------------------
+            bs4TabItem(
+                tabName = "participantes",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-user-friends"), " Participantes"),
+                        tags$hr()
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Sexo",
+                        highchartOutput("part_sexo") 
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Edad",
+                        highchartOutput("part_edad") 
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Previsión",
+                        highchartOutput("part_prev") 
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Educación",
+                        highchartOutput("part_educ") 
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Ocupación",
+                        highchartOutput("part_ocup") 
+                    ),
                 )
             ),
 # mapas -------------------------------------------------------------------

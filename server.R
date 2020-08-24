@@ -1,11 +1,13 @@
 input <- list(
   snt_opt = c("snt_tos", "snt_odinofagia"), 
+  snt_sos = "sosp_minsal0530",
   ssd_opt = "sexo",
   razones_opt = "tiempo"
   )
 
 shinyServer(function(input, output, session) {
   
+# bienvenida --------------------------------------------------------------
   ask_confirmation(
     inputId = "tour",
     type = "info",
@@ -13,9 +15,10 @@ shinyServer(function(input, output, session) {
     text = tags$span(
       tags$h3("Bienvenido a MOVID-app"),
       tags$small("Si eres nuevo te invitamos a tomar el tour 
-      para conocer como usar el app")
+      para conocer como usar el app. En caso contrario puedes 
+      ir directo a la aplicación.")
     ),
-    btn_labels = c("Cerrar", "A Tomar el tour"),
+    btn_labels = c("Ir al app", "Tomar el tour"),
     btn_colors = c("", "#093C66"),
     showCloseButton = TRUE,
     html = TRUE
@@ -32,6 +35,93 @@ shinyServer(function(input, output, session) {
     }
     
   })
+  
+
+# data por variable a desagregar y linkeo de selectores -------------------
+  
+  dssd <- reactive({
+    
+    # OPTS_DESAGREGAR
+    # input$ssd_opt <- "educ_3cat"
+    
+    # input$
+    # input$ssd_opt2
+    
+    # x <- values$lastUpdated
+    # message("observeEvent: ", x)
+    # v <- input[[x]]
+    
+    dssd <- movid %>%
+      select(
+        semana_fecha, 
+        all_of(input$ssd_opt), 
+        s2_consulta, 
+        sosp_minsal0326, 
+        s7_exmn_realizado,
+        s10_exmn_confirmado,
+        s4_consulta_dias,
+        s11_exmn_espera,
+        starts_with("s3_cons"),
+        starts_with("s8_exmn"),
+        sosp_minsal0530,
+        sosp_minsal0326,
+        sosp_movid19,
+        contacto
+      ) %>% 
+      rename_at(vars(2), ~"tipo")
+    
+    # dssd %>% count(tipo, sort = TRUE)
+    # dssd %>%
+    #   count(tipo, sort = TRUE) %>% 
+    #   pull(tipo) %>% 
+    #   # setNames(rep(TRUE, length(.)), .) %>% 
+    #   dput()
+    
+    tipo_detalles <- switch(
+      input$ssd_opt,
+      todo = c("Total" = TRUE),
+      sexo = c("Femenino" = TRUE, "Masculino" = TRUE, "Otro" = FALSE),
+      edad_3cat = c("18 a 39" = TRUE, "40 a 64" = TRUE, "65 y más" = TRUE),
+      prev = c("ISAPRE" = TRUE, "FONASA" = TRUE, "Ninguna" = FALSE, "Fuerzas Armadas y de Orden" = FALSE, "Otra" = FALSE),
+      pr3_ocupacion = c("Trabaja de manera remunerada" = TRUE, "Otra actividad (jubilado, pensionado, recibe pensión de invalidez u otro)" = TRUE, 
+                        "Desempleado o desempleada" = TRUE, "Quehaceres del hogar, cuidando niños y otras personas" = FALSE, 
+                        "Estudia" = FALSE),
+      educ_3cat = c("Profesional" = TRUE, "Técnica" = TRUE, "Media o menos" = TRUE)
+    )
+    
+    dssd <- dssd %>% 
+      filter(!is.na(tipo)) %>% 
+      mutate(tipo = factor(tipo, levels = names(tipo_detalles)))
+    
+    # dssd %>% count(tipo)
+    
+    attr(dssd, "visible") <- unname(tipo_detalles)
+    
+    dssd
+    
+  })
+  
+  values <- reactiveValues(lastUpdated = NULL)
+  
+  observeEvent(input$ssd_opt,  { values$lastUpdated <- "ssd_opt"  })
+  observeEvent(input$ssd_opt2, { values$lastUpdated <- "ssd_opt2" })
+
+  observeEvent(c(input$ssd_opt, input$ssd_opt2), {
+    
+    x <- values$lastUpdated
+    message("observeEvent: ", x)
+    v <- input[[x]]
+    
+    lapply(
+      c("ssd_opt", "ssd_opt2"),
+      function(x) {
+        updateSelectInput(
+          session = session,
+          inputId = x,
+          selected = v
+          )
+        })
+    })
   
 # inicio ------------------------------------------------------------------
   
@@ -172,54 +262,50 @@ shinyServer(function(input, output, session) {
 
   output$snt_hc_sospc <- renderHighchart({
 
-    d <- movid %>%
-      select(semana_fecha, sosp_minsal0326, sosp_minsal0530, sosp_movid19) %>%
-      gather(tipo, valor, -semana_fecha) %>%
+    dssd <- dssd()
+    
+    d <- dssd %>% 
+      select(semana_fecha, tipo,  all_of(input$snt_sos)) %>% 
+      rename_at(vars(3),  ~ "definicion") %>% 
       group_by(semana_fecha, tipo) %>%
-      summarise(proporcion = mean(100 * valor, na.rm = TRUE), .groups = "drop") %>% 
-      mutate(
-        definicion = case_when(
-          tipo == "sosp_minsal0326" ~ "MINSAL Inicial",
-          tipo == "sosp_minsal0530" ~ "MINSAL Actual",
-          tipo == "sosp_movid19"    ~ "MOVID19"
-          ),
-        definicion = factor(definicion, levels = c("MINSAL Actual", "MINSAL Inicial", "MOVID19"))
-        ) %>% 
-    arrange(semana_fecha, definicion)
-
+      summarise(proporcion = mean(100 * definicion, na.rm = TRUE), .groups = "drop") 
+    
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion, group = definicion),
-      visible = c(TRUE, FALSE, FALSE)
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(text = "Es caso sospechoso según definición contenida en decreto sanitario y MOVID19")
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
     
+
   })
   
   output$snt_hc_contc <- renderHighchart({
     
-    d <- movid %>%
-      select(semana_fecha, contacto) %>%
-      # gather(tipo, valor, -semana_fecha) %>%
-      group_by(semana_fecha) %>%
-      summarise(proporcion = mean(100 * contacto, na.rm = TRUE), .groups = "drop") %>% 
-      arrange(semana_fecha)
+    dssd <- dssd()
+    
+    d <- dssd %>% 
+      select(semana_fecha, tipo,  contacto) %>%
+      group_by(semana_fecha, tipo) %>%
+      summarise(proporcion = mean(100 * contacto, na.rm = TRUE), .groups = "drop") 
     
     hchart(
       d,
       "line",
-      hcaes(semana_fecha, proporcion),
-      name = "Proporción de personas que declaran un contacto estrecho con caso confirmado COVID19",
-      showInLegend = TRUE
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip(table = TRUE, sort = TRUE) %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(text = "Ha tenido alguna forma de contacto con un paciente confirmado de enfermedad COVID19 en la última semana")
+      hc_xAxis(title = list(text = "")) %>% 
+      hc_yAxis(
+        title = list(text =  "Proporción de personas que declaran<br>un contacto estrecho con caso confirmado COVID19"),
+        labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(
+        text = "¿Ha tenido alguna forma de contacto con un paciente confirmado de enfermedad COVID19 en la última semana?"
+      )
     
   })
   
@@ -250,98 +336,7 @@ shinyServer(function(input, output, session) {
   })
 
 # sistema salud -----------------------------------------------------------
-
-  dssd <- reactive({
-    
-    # OPTS_DESAGREGAR
-    # input$ssd_opt <- "educ_3cat"
-    
-    dssd <- movid %>%
-      select(
-        semana_fecha, 
-        all_of(input$ssd_opt), 
-        s2_consulta, 
-        sosp_minsal0326, 
-        s7_exmn_realizado,
-        s10_exmn_confirmado,
-        s4_consulta_dias,
-        s11_exmn_espera,
-        starts_with("s3_cons"),
-        starts_with("s8_exmn")
-        ) %>% 
-      rename_at(vars(2), ~"tipo")
-    
-    # dssd %>% count(tipo, sort = TRUE)
-    # dssd %>%
-    #   count(tipo, sort = TRUE) %>% 
-    #   pull(tipo) %>% 
-    #   # setNames(rep(TRUE, length(.)), .) %>% 
-    #   dput()
-
-    tipo_detalles <- switch(
-      input$ssd_opt,
-      todo = c("Total" = TRUE),
-      sexo = c("Femenino" = TRUE, "Masculino" = TRUE, "Otro" = FALSE),
-      edad_3cat = c("18 a 39" = TRUE, "40 a 64" = TRUE, "65 y más" = TRUE),
-      prev = c("ISAPRE" = TRUE, "FONASA" = TRUE, "Ninguna" = FALSE, "Fuerzas Armadas y de Orden" = FALSE, "Otra" = FALSE),
-      pr3_ocupacion = c("Trabaja de manera remunerada" = TRUE, "Otra actividad (jubilado, pensionado, recibe pensión de invalidez u otro)" = TRUE, 
-                        "Desempleado o desempleada" = TRUE, "Quehaceres del hogar, cuidando niños y otras personas" = FALSE, 
-                        "Estudia" = FALSE),
-      educ_3cat = c("Profesional" = TRUE, "Técnica" = TRUE, "Media o menos" = TRUE)
-    )
-    
-    dssd <- dssd %>% 
-      filter(!is.na(tipo)) %>% 
-      mutate(tipo = factor(tipo, levels = names(tipo_detalles)))
-    
-    # dssd %>% count(tipo)
-    
-    attr(dssd, "visible") <- unname(tipo_detalles)
-    
-    dssd
-    
-  })
-
-  values <- reactiveValues(lastUpdated = NULL)
-
-  # observe ({
-  #   input[["ssd_opt"]]
-  #   values$lastUpdated <- "ssd_opt"
-  # })
-  # observe ({
-  #   input[["ssd_opt2"]]
-  #   values$lastUpdated <- "ssd_opt2"
-  # })
-# 
-#   observe({
-#     lapply(names(input), function(x) {
-#       observe({
-#         message("observe: ", x)
-#         input[[x]]
-#         values$lastUpdated <- x
-#       })
-#     })
-#   })
-# 
-#   observeEvent(input, {
-#     
-#     x <- values$lastUpdated
-#     message("observeEvent: ", x)
-#     v <- input[[x]]
-#     
-#     lapply(
-#       c("ssd_opt", "ssd_opt2"),
-#       function(x) {
-#        
-#         updateSelectInput(
-#           session = session,
-#           inputId = x,
-#           selected = v
-#           )
-#          
-#       })
-#   })
-#     
+     
   output$ssd_hc_cslta <- renderHighchart({
     
     dssd <- dssd()
@@ -557,7 +552,7 @@ shinyServer(function(input, output, session) {
   output$pcsoc_frec_salida <- renderHighchart({
     
     d <- movid %>% 
-      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro")) %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro"), -p1_pra_invitado) %>% 
       gather(tipo, valor, -semana_fecha) %>% 
       group_by(semana_fecha, tipo) %>% 
       summarise(promedio = mean(valor, na.rm = TRUE), .groups = "drop") %>% 
@@ -578,7 +573,7 @@ shinyServer(function(input, output, session) {
   output$pcsoc_prop2 <- renderHighchart({
     
     d <- movid %>% 
-      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro")) %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro"), -p1_pra_invitado) %>% 
       gather(tipo, valor, -semana_fecha) %>%
       mutate(valor = valor >= 2) %>% 
       group_by(semana_fecha, tipo) %>% 
@@ -600,7 +595,7 @@ shinyServer(function(input, output, session) {
   output$pcsoc_nosalen <- renderHighchart({
     
     d <- movid %>% 
-      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro")) %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"), -contains("p1_pra_otro"), -p1_pra_invitado) %>% 
       gather(tipo, valor, -semana_fecha) %>%
       mutate(valor = valor == 0) %>% 
       group_by(semana_fecha, tipo) %>% 
@@ -623,22 +618,169 @@ shinyServer(function(input, output, session) {
 
   output$persgo_alto <- renderHighchart({
     
-    movid$cr1_per_riesgo
-    
     d <- movid %>% 
       count(semana_fecha, tipo_lbl = cr1_per_riesgo) %>% 
-      filter(!is.na(tipo_lbl)) %>% 
+      filter(!is.na(tipo_lbl)) %>%
       group_by(semana_fecha) %>% 
-      mutate(proporcion = round(100 * n/sum(n), 2))
+      mutate(
+        proporcion = round(100 * n/sum(n), 2),
+        tipo_lbl = factor(
+          tipo_lbl,
+          levels = c("Muy de acuerdo",
+                     "De acuerdo",
+                     "Ni de acuerdo ni en desacuerdo",
+                     "En desacuerdo", 
+                     "Muy en desacuerdo"
+                     )
+          )
+        )
+    
     
     hchart(
       d,
-      "line",
+      "column",
       hcaes(semana_fecha, proporcion, group = tipo_lbl)
     ) %>%
+      hc_colors(c("#093C66", "#00668D", "#00B994", "#8ADD7E", "#F9F871")) %>% 
+      hc_plotOptions(
+        series = list(
+          stacking = "percent", 
+          borderWidth = 0,
+          dataLabels = list(enabled = TRUE)
+          )
+        ) %>% 
       hc_tooltip(table = TRUE, sort = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
+    
+    
+  })
+  
+
+# participantes -----------------------------------------------------------
+
+  OPTS_DESAGREGAR
+  
+  output$part_sexo <- renderHighchart({
+    
+    d <- movid %>% 
+      select(pob_id, sexo) %>% 
+      distinct(pob_id, .keep_all = TRUE) %>% 
+      count(sexo) %>%
+      filter(complete.cases(.)) %>% 
+      arrange(sexo) %>% 
+      setNames(c("variable", "n"))
+    
+    hchart(
+      d,
+      "column",
+      hcaes(variable, n),
+      colorByPoint = TRUE,
+      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
+      dataLabels = list(enabled = TRUE)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""))  
+    
+  })
+  
+  output$part_edad <- renderHighchart({
+    
+    d <- movid %>% 
+      select(pob_id, edad_3cat) %>% 
+      distinct(pob_id, .keep_all = TRUE) %>% 
+      count(edad_3cat) %>%
+      filter(complete.cases(.)) %>% 
+      arrange(edad_3cat) %>% 
+      setNames(c("variable", "n"))
+    
+    hchart(
+      d,
+      "column",
+      hcaes(variable, n),
+      colorByPoint = TRUE,
+      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
+      dataLabels = list(enabled = TRUE)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""))  
+    
+    
+  })
+  
+  output$part_prev <- renderHighchart({
+    
+    d <- movid %>% 
+      select(pob_id, prev) %>% 
+      distinct(pob_id, .keep_all = TRUE) %>% 
+      count(prev) %>%
+      filter(complete.cases(.)) %>% 
+      arrange(prev) %>% 
+      setNames(c("variable", "n"))
+    
+    hchart(
+      d,
+      "column",
+      hcaes(variable, n),
+      colorByPoint = TRUE,
+      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
+      dataLabels = list(enabled = TRUE)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""))  
+    
+    
+  })
+  
+  output$part_ocup <- renderHighchart({
+    
+    d <- movid %>% 
+      select(pob_id, pr3_ocupacion) %>% 
+      distinct(pob_id, .keep_all = TRUE) %>% 
+      count(pr3_ocupacion) %>%
+      filter(complete.cases(.)) %>% 
+      arrange(pr3_ocupacion) %>% 
+      setNames(c("variable", "n"))
+    
+    hchart(
+      d,
+      "column",
+      hcaes(variable, n),
+      colorByPoint = TRUE,
+      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
+      dataLabels = list(enabled = TRUE)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""))  
+    
+    
+  })
+  
+  output$part_educ <- renderHighchart({
+    
+    d <- movid %>% 
+      select(pob_id, educ_3cat) %>% 
+      distinct(pob_id, .keep_all = TRUE) %>% 
+      count(educ_3cat) %>%
+      filter(complete.cases(.)) %>% 
+      arrange(educ_3cat) %>% 
+      setNames(c("variable", "n"))
+    
+    hchart(
+      d,
+      "column",
+      hcaes(variable, n),
+      colorByPoint = TRUE,
+      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
+      dataLabels = list(enabled = TRUE)
+    ) %>%
+      hc_tooltip(table = TRUE, sort = TRUE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""))  
     
     
   })

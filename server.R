@@ -662,8 +662,7 @@ shinyServer(function(input, output, session) {
   
   output$part_region <- renderHighchart({
     
-    hc_demografica("region") %>% 
-      hc_
+    hc_demografica("region") 
     
   })
   

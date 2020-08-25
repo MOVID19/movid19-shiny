@@ -78,17 +78,11 @@ bs4DashPage(
                     valueBoxOutput("vb_fallc", width = 3),
                     valueBoxOutput("vb_resps", width = 3),
                     valueBoxOutput("vb_partc", width = 3),
-                    
                     bs4Card(
                         width = 12,
                         title = "Respuestas",
-                        highchartOutput("inc_respuestas", height = "100%")
-                        ),
-                    # bs4Card(
-                    #     width = 4,
-                    #     title = "Género",
-                    #     highchartOutput("inc_genero")
-                    #     )
+                        highchartOutput("inc_respuestas")
+                        )
                     )
                 ),
 # sintomas ----------------------------------------------------------------
@@ -284,9 +278,19 @@ bs4DashPage(
                         highchartOutput("part_educ") 
                     ),
                     bs4Card(
-                        width = 12,
+                        width = 6,
                         title = "Ocupación",
                         highchartOutput("part_ocup") 
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Región",
+                        highchartOutput("part_region") 
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Respuestas",
+                        highchartOutput("part_respuestas", height = "100%")
                     ),
                 )
             ),

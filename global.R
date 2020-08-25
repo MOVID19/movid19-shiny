@@ -30,8 +30,29 @@ movid <- movid %>%
     pr3_ocupacion = factor(pr3_ocupacion, levels = c("Trabaja de manera remunerada", "Otra actividad (jubilado, pensionado, recibe pensión de invalidez u otro)", 
                                                      "Desempleado o desempleada", "Quehaceres del hogar, cuidando niños y otras personas", 
                                                      "Estudia")),
-    educ_3cat = factor(educ_3cat, levels = c("Profesional", "Técnica", "Media o menos")) 
-  )
+    educ_3cat = factor(educ_3cat, levels = c("Profesional", "Técnica", "Media o menos")),
+    region = factor(
+      territorial::estandariza_regiones(region),
+      levels = c(
+          "Arica y Parinacota",
+          "Tarapacá",
+          "Antofagasta",
+          "Atacama",
+          "Coquimbo",
+          "Valparaíso",
+          "Metropolitana de Santiago",
+          "Libertador General Bernardo O'Higgins",
+          "Maule",
+          "Ñuble",
+          "Biobío",
+          "La Araucanía",
+          "Los Ríos",
+          "Los Lagos",
+          "Aysén del General Carlos Ibañez del Campo",
+          "Magallanes y la Antártica Chilena"
+          )
+      )
+    )
 
 
 # sintomas ----------------------------------------------------------------
@@ -166,13 +187,14 @@ options(
       exporting = list(
         buttons = list(
           contextButton = list(
-            symbol = "url(https://icon-library.com/images/3-dots-icon/3-dots-icon-28.jpg)",
+            symbol = 'url(https://www.iconsdb.com/icons/preview/gray/download-2-xxl.png)',
+            # symbol = "url(https://icon-library.com/images/3-dots-icon/3-dots-icon-28.jpg)",
             symbolSize = 18,
             symbolX = 21,
             symbolY = 20,
             titleKey = "Descargar",
             y = -05,
-            menuItems = c("downloadJPEG", "downloadXLS", "viewFullscreen")
+            menuItems = c("downloadJPEG", "downloadXLS")
             )
           )
         )
@@ -208,7 +230,8 @@ guide <- Cicerone$
     "Gráficos",
     "Cada uno de los gráficos es interactivo, y en cada uno de ellos puedes
     descargar tanto la visualización como imagen o los datos en un archivo
-    excel haciendo click en el ícono superior derecho.",
+    excel haciendo click en el ícono <img width='16px' src='https://www.iconsdb.com/icons/preview/gray/download-2-xxl.png'/>
+    ubicado en la esquina superior derecha.",
     position = "mid-center"
   )
 

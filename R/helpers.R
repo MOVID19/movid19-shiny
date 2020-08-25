@@ -21,7 +21,6 @@ bs4CardMovid <- purrr::partial(
   ... =
 )
 
-
 valueBox <- function(value, subtitle, icon = NULL, elevation = 3, status = NULL, 
                      width = 3, footer = NULL, href = NULL) {
   
@@ -59,3 +58,29 @@ bs4Card <- function(
   )
 }
 
+hc_demografica <- function(var = "prev") {
+  
+  d <- movid %>% 
+    select(pob_id, all_of(var)) %>% 
+    distinct(pob_id, .keep_all = TRUE) %>%
+    rename_at(2, ~ "variable") %>% 
+    count(variable) %>%
+    filter(complete.cases(.)) %>% 
+    arrange(variable) %>% 
+    mutate(p = scales::percent(n/sum(n), accuracy = 0.1))
+  
+  d
+  
+  hchart(
+    d,
+    "column",
+    hcaes(variable, n),
+    colorByPoint = TRUE,
+    tooltip = list(pointFormat = "<center>{point.y} ({point.p})</center>", valueDecimals = 0),
+    dataLabels = list(enabled = TRUE, format = "{point.y:,.0f} ({point.p})")
+  ) %>%
+    hc_tooltip(table = TRUE, sort = TRUE) %>%
+    hc_xAxis(title = list(text = "")) %>%
+    hc_yAxis(title = list(text = ""))  
+  
+}

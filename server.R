@@ -12,14 +12,10 @@ shinyServer(function(input, output, session) {
     inputId = "tour",
     type = "info",
     # title = "¡Bienvenido a MOVID-app!",
-    text = tags$span(
-      tags$h3("Bienvenido a MOVID-app"),
-      tags$small("Si eres nuevo te invitamos a tomar el tour 
-      para conocer como usar el app. En caso contrario puedes 
-      ir directo a la aplicación.")
-    ),
+    text = "Bienvenido a MOVID-app, Si eres nuevo te invitamos a tomar el tour 
+      para conocer como usar el app. En caso contrario puedes ir directo a la aplicación.",
     btn_labels = c("Ir al app", "Tomar el tour"),
-    btn_colors = c("", "#093C66"),
+    btn_colors = c("", "#3de663"),
     showCloseButton = TRUE,
     html = TRUE
   )
@@ -202,34 +198,9 @@ shinyServer(function(input, output, session) {
       hc_xAxis(title = list(text = "")) %>% 
       hc_yAxis(title = list(text = ""), min = 0)
     
-    # htmlwidgets::saveWidget(hc, "chartiframe.html")
-    # fs::file_move("chartiframe.html", "www/chartiframe.html")
-    
     hc
-    # %>% 
-    #   hc_add_dependency("custom/appear.js")
-    # 
-  })
-  
-  output$inc_genero <- renderHighchart({
     
-    movid %>%
-      count(sexo) %>% 
-      mutate(sexo = coalesce(sexo, "No responde")) %>% 
-      mutate(p = scales::percent(n/sum(n))) %>% 
-      hchart(
-        "pie",
-        hcaes(name = sexo, y = n),
-        innerSize = "75%",
-        name = "Género",
-        tooltip = list(valueDecimals = 0, pointFormat = '<b>{point.y}</b><br/>'),
-        dataLabels = list(
-          format =  '{point.name} <span style="opacity: 0.4">{point.p}</span>'
-        )
-      )
-        
   })
-  
 
 # sintomas ----------------------------------------------------------------
   output$snt_hc_tlsnt <- renderHighchart({
@@ -658,130 +629,58 @@ shinyServer(function(input, output, session) {
   
 
 # participantes -----------------------------------------------------------
-
-  OPTS_DESAGREGAR
   
   output$part_sexo <- renderHighchart({
     
-    d <- movid %>% 
-      select(pob_id, sexo) %>% 
-      distinct(pob_id, .keep_all = TRUE) %>% 
-      count(sexo) %>%
-      filter(complete.cases(.)) %>% 
-      arrange(sexo) %>% 
-      setNames(c("variable", "n"))
-    
-    hchart(
-      d,
-      "column",
-      hcaes(variable, n),
-      colorByPoint = TRUE,
-      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
-      dataLabels = list(enabled = TRUE)
-    ) %>%
-      hc_tooltip(table = TRUE, sort = TRUE) %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""))  
+    hc_demografica("sexo")
     
   })
   
   output$part_edad <- renderHighchart({
     
-    d <- movid %>% 
-      select(pob_id, edad_3cat) %>% 
-      distinct(pob_id, .keep_all = TRUE) %>% 
-      count(edad_3cat) %>%
-      filter(complete.cases(.)) %>% 
-      arrange(edad_3cat) %>% 
-      setNames(c("variable", "n"))
-    
-    hchart(
-      d,
-      "column",
-      hcaes(variable, n),
-      colorByPoint = TRUE,
-      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
-      dataLabels = list(enabled = TRUE)
-    ) %>%
-      hc_tooltip(table = TRUE, sort = TRUE) %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""))  
-    
+    hc_demografica("edad_3cat")
     
   })
   
   output$part_prev <- renderHighchart({
     
-    d <- movid %>% 
-      select(pob_id, prev) %>% 
-      distinct(pob_id, .keep_all = TRUE) %>% 
-      count(prev) %>%
-      filter(complete.cases(.)) %>% 
-      arrange(prev) %>% 
-      setNames(c("variable", "n"))
-    
-    hchart(
-      d,
-      "column",
-      hcaes(variable, n),
-      colorByPoint = TRUE,
-      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
-      dataLabels = list(enabled = TRUE)
-    ) %>%
-      hc_tooltip(table = TRUE, sort = TRUE) %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""))  
-    
+    hc_demografica("prev")
     
   })
   
   output$part_ocup <- renderHighchart({
     
-    d <- movid %>% 
-      select(pob_id, pr3_ocupacion) %>% 
-      distinct(pob_id, .keep_all = TRUE) %>% 
-      count(pr3_ocupacion) %>%
-      filter(complete.cases(.)) %>% 
-      arrange(pr3_ocupacion) %>% 
-      setNames(c("variable", "n"))
-    
-    hchart(
-      d,
-      "column",
-      hcaes(variable, n),
-      colorByPoint = TRUE,
-      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
-      dataLabels = list(enabled = TRUE)
-    ) %>%
-      hc_tooltip(table = TRUE, sort = TRUE) %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""))  
-    
+    hc_demografica("pr3_ocupacion")
     
   })
   
   output$part_educ <- renderHighchart({
     
-    d <- movid %>% 
-      select(pob_id, educ_3cat) %>% 
-      distinct(pob_id, .keep_all = TRUE) %>% 
-      count(educ_3cat) %>%
-      filter(complete.cases(.)) %>% 
-      arrange(educ_3cat) %>% 
-      setNames(c("variable", "n"))
+    hc_demografica("educ_3cat")
     
-    hchart(
-      d,
-      "column",
-      hcaes(variable, n),
-      colorByPoint = TRUE,
-      tooltip = list(pointFormat = "<center>{point.y}</center>", valueDecimals = 0),
-      dataLabels = list(enabled = TRUE)
-    ) %>%
-      hc_tooltip(table = TRUE, sort = TRUE) %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""))  
+  })
+  
+  output$part_region <- renderHighchart({
     
+    hc_demografica("region") %>% 
+      hc_
+    
+  })
+  
+  output$part_respuestas <- renderHighchart({
+    
+    hc <- movid %>%
+      count(semana_fecha) %>% 
+      hchart(
+        "line",
+        hcaes(semana_fecha, n),
+        name = "Cantidad de respuestas"
+      ) %>%
+      hc_tooltip(shared = TRUE, table = TRUE, valueDecimals = 0) %>% 
+      hc_xAxis(title = list(text = "")) %>% 
+      hc_yAxis(title = list(text = ""), min = 0)
+    
+    hc
     
   })
   

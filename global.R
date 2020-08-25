@@ -100,10 +100,10 @@ OPTS_RAZONES <- c(
   "Por el costo económico" = "costo",
   "Porque no sabía dónde realizarlo" = "nosabia",
   "Porque tenía que esperar mucho tiempo" = "tiempo",
-  "Porque está evaluando si los síntomas empeoran antes de consultar" = "empeorar",
-  "Por miedo a contagiarse" = "temor",
-  "Porque los síntomas son leves o habituales" = "leves",
-  "Por que el sistema de salud está muy lleno" = "sistlleno",
+  # "Porque está evaluando si los síntomas empeoran antes de consultar" = "empeorar",
+  # "Por miedo a contagiarse" = "temor",
+  # "Porque los síntomas son leves o habituales" = "leves",
+  # "Por que el sistema de salud está muy lleno" = "sistlleno",
   "Otra" = "otra"
 )
 

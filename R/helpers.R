@@ -84,3 +84,35 @@ hc_demografica <- function(var = "prev") {
     hc_yAxis(title = list(text = ""))  
   
 }
+
+hc_tooltip_n <- function(hc, separado = TRUE, ...) {
+  
+  header <- "<small>{point.key}</small><table>"
+  
+  header <- ifelse(
+    separado,
+    header,
+    str_c(header, "<tr><td style=\"text-align: right; color: #A9A9A9\">Cantidad de respuestas {point.cantidad:,.0f}</td></tr>")
+  )
+  
+  point <- "<tr>
+        <td style=\"color: {series.color}\">{series.name}: </td>
+        <td style=\"text-align: right\"><b>{point.y}</b></td>"
+  
+  point <- ifelse(
+    separado,
+    str_c(point, "<td style=\"text-align: right; color: #A9A9A9\">({point.cantidad:,.0f})</td>"),
+    point
+  )
+  
+  point <- str_c(point, "</tr>")
+  
+  hc %>% 
+    hc_tooltip(
+      shared = TRUE,
+      useHTML = TRUE,
+      headerFormat = header,
+      pointFormat = point,
+      footerFormat = "</table>"
+      ) 
+}

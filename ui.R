@@ -33,7 +33,7 @@ bs4DashPage(
                 icon = "users"
             ),
             bs4SidebarMenuItem(
-                text = "Percepción de riesgo",
+                text = "Percepciones",
                 tabName = "percepcion",
                 icon = "exclamation-triangle"
             ),
@@ -175,12 +175,12 @@ bs4DashPage(
                         highchartOutput("ssd_hc_exesp") 
                     ),
                     bs4Card(
-                        title = "Días de espera entre sínotmas y resultados",
+                        title = "Días de espera entre síntomas y resultados",
                         highchartOutput("ssd_hc_ctaex") 
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Razones para no consultar a profesional o no realizarse exámen",
+                        title = "Razones para no realizar consulta médica o no realizarse examen",
                         fluidRow(
                             column(
                                 6,
@@ -218,7 +218,7 @@ bs4DashPage(
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Promedio frecuencia de salida",
+                        title = "Frecuencia promedio de salidas según tipo de práctica",
                         highchartOutput("pcsoc_frec_salida") 
                     ),
                     bs4Card(
@@ -231,13 +231,13 @@ bs4DashPage(
                     ),
                 )
             ),
-# percepción riesgo -------------------------------------------------------
+# percepciones ------------------------------------------------------------
             bs4TabItem(
                 tabName = "percepcion",
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-exclamation-triangle"), " Percepción de riesgo"),
+                        tags$h2(tags$i(class = "fa fa-exclamation-triangle"), " Percepciones"),
                         tags$hr()
                     ),
                     bs4Card(

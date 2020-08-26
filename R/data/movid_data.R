@@ -10,6 +10,15 @@ mv <- data.table::fread("data/movid19.csv", encoding = "UTF-8")
 
 mv <- as_tibble(mv)
 
+# mv %>% 
+#   filter(fecha_obs %>% as.Date() >= lubridate::ymd(20200803)) %>% 
+#   {
+#     table(.$fecha_obs %>% as.Date(), .$semana)
+#   }
+#   
+# table(mv$fecha_obs %>% as.Date(), mv$semana)
+
+
 # mv$r5_educ
 
 # glimpse(mv)
@@ -150,11 +159,50 @@ mv <- mv %>%
 
 # 20200805 ----------------------------------------------------------------
 # miercoles de la semana anterior
+
+# mv$fecha_ultima_obs
+# table( mv$fecha_ultima_obs %>% as.Date(), mv$semana )
+# 
+# lubridate::wday(Sys.Date(), week_start = 1)
+
 mv <- mv %>% 
   mutate(
-    semana_fecha = as.Date(paste(2020, semana, 1, sep="-"), "%Y-%U-%u"),
-    semana_fecha = semana_fecha - lubridate::days(5)
-    )
+    semana_fecha_miercoles = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
+    semana_fecha_miercoles = if_else(
+      lubridate::wday(as.Date(fecha), week_start = 1) > 3,
+      semana_fecha_miercoles + lubridate::days(7),
+      semana_fecha_miercoles
+      )
+  )
+
+# mv %>% 
+#   filter(lubridate::month(fecha) >= 08) %>% 
+#   count(as.Date(fecha), semana_fecha_miercoles) %>% 
+#   tidyr::spread(semana_fecha_miercoles, n) %>% 
+#   print(n = Inf)
+# 
+# mv %>% 
+#   group_by(semana) %>%
+#   summarise(fecha_min = as.Date(min(fecha)), fecha_max = as.Date(max(fecha))) %>% 
+#   arrange(semana) %>% 
+#   mutate(
+#     # semana parte desde 0, luego debo considerar el miercoles anterior, por eso -2
+#     # luego dado que es miercoles va el 3
+#     # https://community.rstudio.com/t/converting-week-number-and-year-into-date/27202
+#     semana_fecha = as.Date(paste(2020, semana - 1, 1, sep="-"), "%Y-%U-%u"),
+#     semana_fecha_miercoles = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
+#     semana_fecha_miercoles_anterior = as.Date(paste(2020, semana - 2, 3, sep="-"), "%Y-%U-%u"),
+#     
+#     
+#     # semana_fecha2 = semana_fecha - lubridate::days(5)
+#   )
+# 
+# mv <- mv %>% 
+#   mutate(
+#     semana_fecha = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
+#     )
+# 
+# count(mv, semana_fecha)
 
 # 20200810 ----------------------------------------------------------------
 mv <- mv %>% 

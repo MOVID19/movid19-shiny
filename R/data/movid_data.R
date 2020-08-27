@@ -173,7 +173,8 @@ mv <- mv %>%
       semana_fecha_miercoles + lubridate::days(7),
       semana_fecha_miercoles
       )
-  )
+  ) %>% 
+  rename(semana_fecha = semana_fecha_miercoles)
 
 # mv %>% 
 #   filter(lubridate::month(fecha) >= 08) %>% 

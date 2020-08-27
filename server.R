@@ -43,10 +43,6 @@ shinyServer(function(input, output, session) {
     # input$
     # input$ssd_opt2
     
-    # x <- values$lastUpdated
-    # message("observeEvent: ", x)
-    # v <- input[[x]]
-    
     dssd <- movid %>%
       select(
         semana_fecha, 
@@ -92,7 +88,7 @@ shinyServer(function(input, output, session) {
     
     # dssd %>% count(tipo)
     
-    attr(dssd, "visible") <- unname(tipo_detalles)
+    attr(dssd, "visible") <- tipo_detalles
     
     dssd
     
@@ -220,7 +216,7 @@ shinyServer(function(input, output, session) {
       group_by(semana_fecha, name) %>%
       summarise(
         proporcion = mean(100 * valor, na.rm = TRUE),
-        cantidad = n(),
+        cantidad = sum(valor, na.rm = TRUE),
         .groups = "drop"
         ) %>% 
       rename(sintoma = name)
@@ -230,7 +226,7 @@ shinyServer(function(input, output, session) {
       "line",
       hcaes(semana_fecha, proporcion, group = sintoma)
       ) %>%
-      hc_tooltip_n(separado = FALSE) %>%
+      hc_tooltip_n(separado = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)
     
@@ -246,9 +242,9 @@ shinyServer(function(input, output, session) {
       group_by(semana_fecha, tipo) %>%
       summarise(
         proporcion = mean(100 * definicion, na.rm = TRUE),
-        cantidad = n(),
+        cantidad = sum(definicion, na.rm = TRUE),
         .groups = "drop"
-        ) 
+        )
     
     hchart(
       d,
@@ -272,7 +268,7 @@ shinyServer(function(input, output, session) {
       group_by(semana_fecha, tipo) %>%
       summarise(
         proporcion = mean(100 * contacto, na.rm = TRUE), 
-        cantidad = n(),
+        cantidad = sum(contacto, na.rm = TRUE),
         .groups = "drop"
         ) 
     
@@ -326,11 +322,11 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
   
     d <- dssd %>%
-      filter(s2_consulta == 1) %>% 
+      filter(sintoma == 1) %>% 
       group_by(semana_fecha, tipo) %>% 
       summarise(
-        proporcion = mean(100 * sosp_minsal0326, na.rm = TRUE),
-        cantidad = n(),
+        proporcion = mean(100 * s2_consulta, na.rm = TRUE),
+        cantidad = sum(s2_consulta, na.rm = TRUE),
         .groups = "drop"
       )
     
@@ -352,11 +348,11 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     d <- dssd %>%
-      filter(s7_exmn_realizado == 1) %>% 
+      filter(sintoma == 1) %>% 
       group_by(semana_fecha, tipo) %>% 
       summarise(
-        proporcion = mean(100 * sosp_minsal0326, na.rm = TRUE),
-        cantidad = n(),
+        proporcion = mean(100 * s7_exmn_realizado, na.rm = TRUE),
+        cantidad = sum(s7_exmn_realizado, na.rm = TRUE),
         .groups = "drop"
       )
     
@@ -384,17 +380,18 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     d <- dssd %>%
-      select(semana_fecha, tipo, s7_exmn_realizado, s10_exmn_confirmado) %>% 
-      filter(s7_exmn_realizado == 1) %>%
+      select(semana_fecha, tipo, s7_exmn_realizado, s10_exmn_confirmado, sintoma) %>% 
+      filter(sintomas == 1, s7_exmn_realizado == 1) %>%
       # cambio 2
       mutate(s10_exmn_confirmado = coalesce(s10_exmn_confirmado, 0)) %>% 
       group_by(semana_fecha, tipo) %>% 
       summarise(
         proporcion = mean(100 * s10_exmn_confirmado, na.rm = TRUE),
-        cantidad = n(),
+        cantidad = sum(s10_exmn_confirmado, na.rm = TRUE),
         .groups = "drop"
       )
     
+    # cambio B 2020-08-26
     hchart(
       d,
       "line",
@@ -414,8 +411,8 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     d <- dssd %>%
-      filter(sintoma == 1) %>%
-      # count(s4_consulta_dias)
+      filter(sintoma == 1, s2_consulta == 1) %>%
+      select(semana_fecha, tipo, sintoma, s2_consulta, s4_consulta_dias) %>%
       group_by(semana_fecha, tipo) %>% 
       summarise(
         proporcion = mean(s4_consulta_dias, na.rm = TRUE),
@@ -444,8 +441,8 @@ shinyServer(function(input, output, session) {
     d <- dssd %>%
       select(semana_fecha, tipo, s7_exmn_realizado, s11_exmn_espera) %>% 
       # cambio 1
-      filter(s7_exmn_realizado == 1) %>% 
-      filter(s11_exmn_espera >= 0) %>% 
+      filter(s7_exmn_realizado == 1) %>%
+      filter(s11_exmn_espera > 0) %>% 
       group_by(semana_fecha, tipo) %>% 
       summarise(
         proporcion = mean(s11_exmn_espera, na.rm = TRUE),
@@ -453,11 +450,15 @@ shinyServer(function(input, output, session) {
         .groups = "drop"
       )
     
+    presentes <- d %>% count(tipo) %>% pull(tipo) %>% as.character()
+    vsble <- attr(dssd, "visible")
+    vsble2 <- vsble[which(presentes %in% names(vsble))]
+    
     hchart(
       d,
       "line",
       hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
+      visible = vsble2
     ) %>%
       hc_tooltip_n() %>%
       hc_xAxis(title = list(text = "")) %>%
@@ -472,8 +473,8 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     d <- dssd %>%
-      select(semana_fecha, tipo, s4_consulta_dias, s11_exmn_espera, s7_exmn_realizado) %>% 
-      filter(s7_exmn_realizado == 1) %>% 
+      select(semana_fecha, tipo, s4_consulta_dias, s11_exmn_espera, s7_exmn_realizado, sintoma) %>% 
+      filter(sintoma == 1, s7_exmn_realizado == 1) %>% 
       filter(!is.na(s4_consulta_dias) | !is.na(s11_exmn_espera)) %>% 
       # cambio 1
       mutate(
@@ -509,6 +510,7 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
     
     dssd <- dssd %>%
+      filter(sintoma == 1) %>% 
       select(all_of(str_c("s3_cons_", input$razones_opt)), everything()) %>% 
       rename_at(vars(1), ~ "variable")
     
@@ -516,7 +518,7 @@ shinyServer(function(input, output, session) {
       group_by(semana_fecha, tipo) %>% 
       summarise(
         proporcion = mean(100 * variable, na.rm = TRUE),
-        cantidad = n(),
+        cantidad = sum(variable, na.rm = TRUE),
         .groups = "drop"
       )
     
@@ -538,6 +540,7 @@ shinyServer(function(input, output, session) {
     dssd <- dssd()
   
     dssd <- dssd %>%
+      filter(sintoma == 1) %>% 
       select(all_of(str_c("s8_exmn_", input$razones_opt)), everything()) %>% 
       rename_at(vars(1), ~ "variable")
     
@@ -545,7 +548,7 @@ shinyServer(function(input, output, session) {
       group_by(semana_fecha, tipo) %>% 
       summarise(
         proporcion = mean(100 * variable, na.rm = TRUE),
-        cantidad = n(),
+        cantidad = sum(variable, na.rm = TRUE),
         .groups = "drop"
       )
     
@@ -562,6 +565,34 @@ shinyServer(function(input, output, session) {
     
   })  
 
+  output$ssd_hc_cslta_sos <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>%
+      filter(sosp_minsal0530 == 1) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(100 * s2_consulta, na.rm = TRUE),
+        cantidad = sum(s2_consulta, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
+    ) %>%
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = "Consultó a un profesional de la salud por síntomas siendo caso
+                  sospechoso de acuerdo a la última definicion del MINSAL.")
+    
+  })
+  
+  
 # prácticas sociales ------------------------------------------------------
 
   output$pcsoc_frec_salida <- renderHighchart({

@@ -70,7 +70,7 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-virus"), " Inicio"),
+                        tags$h2(tags$i(class = "fa fa-virus"), " MOVID-19"),
                         tags$hr()
                     ),
                     
@@ -203,6 +203,10 @@ bs4DashPage(
                             )
                         )
                        
+                    ),
+                    bs4Card(
+                        title = "Consulta médica siendo sospechoso",
+                        highchartOutput("ssd_hc_cslta_sos") 
                     ),
                 )
             ),

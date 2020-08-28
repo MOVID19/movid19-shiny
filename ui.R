@@ -206,12 +206,12 @@ bs4DashPage(
                         title = "Días de espera entre toma examen y resultados",
                         highchartOutput("ssd_hc_exesp") 
                     ),
+                    # bs4Card(
+                    #     title = "Días de espera entre síntomas y resultados",
+                    #     highchartOutput("ssd_hc_ctaex") 
+                    # ),
                     bs4Card(
-                        title = "Días de espera entre síntomas y resultados",
-                        highchartOutput("ssd_hc_ctaex") 
-                    ),
-                    bs4Card(
-                        width = 6,
+                        width = 12,
                         title = "Razones entregadas entre las personas que declaran síntomas y decidieron no consultar",
                         selectizeInput(
                             "razones_opt",

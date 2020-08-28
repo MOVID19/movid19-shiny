@@ -1,7 +1,8 @@
 input <- list(
   snt_opt = c("snt_tos", "snt_odinofagia"), 
   snt_sos = "sosp_minsal0530",
-  ssd_opt = "prev",
+  # ssd_opt = "prev",
+  ssd_opt = "todo",
   razones_opt = "temor",
   razones_opt2 = c("espera", "nodisp", "nograve", "nosabia", "nimporta")
   )
@@ -173,22 +174,64 @@ shinyServer(function(input, output, session) {
       )
   })
   
-  output$inc_respuestas <- renderHighchart({
+  output$inicial_1 <- renderHighchart({
     
-    hc <- movid %>%
-      count(semana_fecha) %>% 
-      hchart(
-        "line",
-        hcaes(semana_fecha, n),
-        name = "Cantidad de respuestas"
-      ) %>%
-      hc_tooltip(shared = TRUE, table = TRUE, valueDecimals = 0) %>% 
-      hc_xAxis(title = list(text = "")) %>% 
-      hc_yAxis(title = list(text = ""), min = 0)
+    d <- movid %>% 
+      select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"),
+             -contains("p1_pra_otro"), -p1_pra_invitado, -p1_pra_transporte) %>% 
+      gather(tipo, valor, -semana_fecha) %>%
+      mutate(valor = valor >= 2) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = mean(100 * valor, na.rm = TRUE), 
+        cantidad = n(),
+        .groups = "drop"
+      ) %>% 
+      left_join(PRACTICAS_DF, by = "tipo") %>% 
+      arrange(semana_fecha, tipo_lbl)
     
-    hc
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_tooltip_n(separado = FALSE) %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)  
     
   })
+  
+  output$inicial_2 <- renderHighchart({
+    
+    # dssd <- dssd()
+    
+    d <- movid %>%
+      filter(sosp_minsal0530 == 1) %>% 
+      group_by(semana_fecha, tipo = prev) %>% 
+      summarise(
+        proporcion = mean(100 * s2_consulta, na.rm = TRUE),
+        cantidad = sum(s2_consulta, na.rm = TRUE),
+        .groups = "drop"
+      ) %>% 
+      filter(!is.na(tipo))
+    
+    vsbl <- c("ISAPRE" = TRUE, "FONASA" = TRUE, "Ninguna" = FALSE, "Fuerzas Armadas y de Orden" = FALSE, "Otra" = FALSE)
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = vsbl
+    ) %>%
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = " Porcentaje de personas que cumplen con definición 
+                  vigente de casos sospechosos que consulta a un profesional 
+                  de salud por sus síntomas")  
+    
+  })
+  
 
 # sintomas ----------------------------------------------------------------
   output$snt_hc_tlsnt <- renderHighchart({
@@ -285,9 +328,9 @@ shinyServer(function(input, output, session) {
     d <- movid %>%
       group_by(semana_fecha) %>%
       summarise(
-        `Proporción caso confirmado COVID19` = mean(100 * coalesce(s10_exmn_confirmado, 0), na.rm = TRUE),
+        # `Proporción caso confirmado COVID19` = mean(100 * coalesce(s10_exmn_confirmado, 0), na.rm = TRUE),
         `Proporción caso probable COVID19` = mean(100 * caso_probable2, na.rm = TRUE),
-        `Totales` =  mean(100 * (caso_probable2 | coalesce(s10_exmn_confirmado, 0)), na.rm = TRUE),
+        # `Totales` =  mean(100 * (caso_probable2 | coalesce(s10_exmn_confirmado, 0)), na.rm = TRUE),
         .groups = "drop"
         ) %>% 
       gather(tipo, proporcion, -semana_fecha) %>% 
@@ -301,8 +344,10 @@ shinyServer(function(input, output, session) {
       hc_tooltip(table = TRUE) %>%
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(text = "Ha tenido alguna forma de contacto con un paciente confirmado de 
-                  enfermedad COVID19 o presenta al menos un síntoma en la última semana.")
+      hc_subtitle(
+      text = "Proporción de personas con síntomas COVID-19 y antecedente de contacto estrecho con 
+      caso confirmado"
+      )
     
   })
 
@@ -425,19 +470,20 @@ shinyServer(function(input, output, session) {
     
     dssd <- dssd()
     
+    # dssd %>% 
+    #   count(semana_fecha, s7_exmn_realizado) %>% 
+    #   spread(s7_exmn_realizado, n)
+    
     d <- dssd %>%
-      select(semana_fecha, tipo, s7_exmn_realizado, s10_exmn_confirmado, sintoma) %>% 
-      filter(sintoma == 1, s7_exmn_realizado == 1) %>%
-      # cambio 2
-      mutate(s10_exmn_confirmado = coalesce(s10_exmn_confirmado, 0)) %>% 
-      group_by(semana_fecha, tipo) %>% 
+      select(semana_fecha, tipo, s7_exmn_realizado) %>% 
+      filter(!is.na(s7_exmn_realizado)) %>%
+      group_by(semana_fecha, tipo) %>%
       summarise(
-        proporcion = mean(100 * s10_exmn_confirmado, na.rm = TRUE),
-        cantidad = sum(s10_exmn_confirmado, na.rm = TRUE),
+        proporcion = mean(s7_exmn_realizado, na.rm = TRUE) * 1000,
+        cantidad = sum(s7_exmn_realizado, na.rm = TRUE),
         .groups = "drop"
       )
     
-    # cambio B 2020-08-26
     hchart(
       d,
       "line",
@@ -446,10 +492,36 @@ shinyServer(function(input, output, session) {
     ) %>%
       hc_tooltip_n() %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(text = "Recibió resultado positivo en algún examen para 
-                  enfermedad COVID19 realizado durante la última semana.")
+      hc_yAxis(title = list(text = ""), min = 0) %>%
+      hc_subtitle(text = "Tasa de test diagnóstico SARS-CoV-2 por cada mil personas")
     
+  })
+  
+  output$ssd_hc_posit2 <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>%
+      select(semana_fecha, tipo, s10_exmn_confirmado) %>%
+      filter(!is.na(s10_exmn_confirmado)) %>%
+      group_by(semana_fecha, tipo) %>%
+      summarise(
+        proporcion = mean(100 * s10_exmn_confirmado, na.rm = TRUE),
+        cantidad = sum(s10_exmn_confirmado, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
+    ) %>%
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>%
+      hc_subtitle(text = "Recibió resultado positivo en algún examen para
+                  enfermedad COVID19 realizado durante la última semana.")
   })
   
   output$ssd_hc_ctads <- renderHighchart({
@@ -613,35 +685,7 @@ shinyServer(function(input, output, session) {
     
   })  
 
-  output$ssd_hc_posit2 <- renderHighchart({
-    
-    # dssd <- dssd()
-    # 
-    # d <- dssd %>%
-    #   select(semana_fecha, tipo, s7_exmn_realizado, s10_exmn_confirmado, sintoma) %>% 
-    #   filter(sintoma == 1, s7_exmn_realizado == 1) %>%
-    #   # cambio 2
-    #   mutate(s10_exmn_confirmado = coalesce(s10_exmn_confirmado, 0)) %>% 
-    #   group_by(semana_fecha, tipo) %>% 
-    #   summarise(
-    #     proporcion = mean(100 * s10_exmn_confirmado, na.rm = TRUE),
-    #     cantidad = sum(s10_exmn_confirmado, na.rm = TRUE),
-    #     .groups = "drop"
-    #   )
-    # 
-    # # cambio B 2020-08-26
-    # hchart(
-    #   d,
-    #   "line",
-    #   hcaes(semana_fecha, proporcion, group = tipo),
-    #   visible = attr(dssd, "visible")
-    # ) %>%
-    #   hc_tooltip_n() %>%
-    #   hc_xAxis(title = list(text = "")) %>%
-    #   hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-    #   hc_subtitle(text = "Recibió resultado positivo en algún examen para 
-    #               enfermedad COVID19 realizado durante la última semana.")
-  })
+  
   
 # prácticas sociales ------------------------------------------------------
 

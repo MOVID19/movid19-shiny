@@ -92,11 +92,17 @@ bs4DashPage(
                     valueBoxOutput("vb_resps", width = 3),
                     valueBoxOutput("vb_partc", width = 3),
                     bs4Card(
-                        width = 12,
-                        title = "Respuestas",
-                        highchartOutput("inc_respuestas")
+                        width = 6,
+                        title = "Proporción de personas que salen al menos 2 veces por semana",
+                        highchartOutput("inicial_1")
+                        ),
+                    bs4Card(
+                        width = 6,
+                        title = "Acceso a consulta médica",
+                        highchartOutput("inicial_2")
                         )
-                    )
+                    ),
+                
                 ),
 # sintomas ----------------------------------------------------------------
             bs4TabItem(
@@ -117,20 +123,6 @@ bs4DashPage(
                         )
                     ),
                     bs4Card(
-                        title = "Síntomas durante la última semana",
-                        width = 12,
-                        selectizeInput(
-                            "snt_opt", NULL, 
-                            choices = OPTS_SINTOMAS,
-                            selected = "snt_fiebre",
-                            multiple = TRUE, 
-                            width = "100%",
-                            options = list(maxItems = 5)
-                            ),
-                        # 345 de altura debido al selectInput anterior
-                        highchartOutput("snt_hc_tlsnt", height = 345)
-                    ),
-                    bs4Card(
                         title = "Casos sospechosos",
                         selectizeInput(
                             "snt_sos", NULL, 
@@ -143,10 +135,25 @@ bs4DashPage(
                         title = "Contacto estrecho",
                         highchartOutput("snt_hc_contc")
                     ),
-                    # bs4Card(
-                    #     title = "Confirmados y probables",
-                    #     highchartOutput("snt_hc_confm")
-                    # ),
+                    bs4Card(
+                        # title = "Confirmados y probables",
+                        title = "Casos probables",
+                        highchartOutput("snt_hc_confm")
+                    ),
+                    bs4Card(
+                        title = "Síntomas durante la última semana",
+                        width = 6,
+                        selectizeInput(
+                            "snt_opt", NULL, 
+                            choices = OPTS_SINTOMAS,
+                            selected = "snt_fiebre",
+                            multiple = TRUE, 
+                            width = "100%",
+                            options = list(maxItems = 5)
+                        ),
+                        # 345 de altura debido al selectInput anterior
+                        highchartOutput("snt_hc_tlsnt", height = 345)
+                    ),
                 )
             ),
 # sistema salud -----------------------------------------------------------
@@ -184,8 +191,12 @@ bs4DashPage(
                         )
                     ),
                     bs4Card(
-                        title = "Confirmación a través de examen COVID-19",
+                        title = "Tasa de test diagnóstico",
                         highchartOutput("ssd_hc_posit") 
+                    ),
+                    bs4Card(
+                        title = "Positividad de los test diagnósticos",
+                        highchartOutput("ssd_hc_posit2") 
                     ),
                     bs4Card(
                         title = "Días de espera consulta",
@@ -212,7 +223,7 @@ bs4DashPage(
                         highchartOutput("ssd_hc_s3con", height = 345)
                     ),
                     bs4Card(
-                        width = 6,
+                        width = 12,
                         title = "Razones entregadas entre las personas que teniendo indicado realizarse un test diagnóstico no se lo realizaron",
                         selectizeInput(
                             "razones_opt2",
@@ -222,11 +233,7 @@ bs4DashPage(
                             multiple = TRUE,
                             width = "100%"
                         ),
-                        highchartOutput("ssd_hc_s8exm", height = 345)
-                    ),
-                    bs4Card(
-                        title = "Positividad de los test diagnósticos",
-                        highchartOutput("ssd_hc_posit2") 
+                        highchartOutput("ssd_hc_s8exm")
                     ),
                 )
             ),

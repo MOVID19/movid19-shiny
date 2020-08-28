@@ -11,14 +11,15 @@ bs4DashPage(
         fixed = FALSE,
         skin = "light",
         bs4SidebarMenu(
+            id = "current_tab",
             bs4SidebarMenuItem(
-                text = "Inicio",
+                text = "MOVID-19",
                 tabName = "inicio",
                 # icon =  "tachometer-alt",
                 icon = "virus"
             ),
             bs4SidebarMenuItem(
-                text = "Síntomas",
+                text = "Síntomas COVID-19",
                 tabName = "sintomas",
                 icon = "stethoscope"
             ),
@@ -38,19 +39,20 @@ bs4DashPage(
                 icon = "exclamation-triangle"
             ),
             bs4SidebarMenuItem(
-                text = "Participantes",
-                tabName = "participantes",
-                icon = "user-friends"
-            ),
-            bs4SidebarMenuItem(
                 text = "Mapas",
                 tabName = "mapas",
                 icon = "map-marked-alt"
             ),
             bs4SidebarMenuItem(
-                text = "Acerca de",
-                tabName = "acerca",
-                icon = "question-circle"
+                text = "Participantes",
+                tabName = "participantes",
+                icon = "user-friends"
+            ),
+            bs4SidebarMenuItem(
+                text = "Ayuda",
+                tabName = "ayuda",
+                icon = "question-circle",
+                expandedName = "ayuda"
             )
         )
     ),
@@ -73,7 +75,18 @@ bs4DashPage(
                         tags$h2(tags$i(class = "fa fa-virus"), " MOVID-19"),
                         tags$hr()
                     ),
-                    
+                    column(
+                        12,
+                        HTML("Con este visualizador podrás conocer los principales
+                            resultados del Monitoreo Nacional de Síntomas y Prácticas 
+                            COVID-19 en Chile (MOVID-19). Te invitamos a explorar 
+                            cada sección y conocer la evolución de los distintos 
+                            aspectos de la pandemia en nuestro país con datos 
+                            actualizados de nuestra encuesta. Recuerda seguir 
+                            contestando o inscribirte  <a href='https://encuestacovid.uchile.cl/' target='_blank'>aquí</a>."
+                            ),
+                        tags$hr()
+                        ),
                     valueBoxOutput("vb_casos", width = 3),
                     valueBoxOutput("vb_fallc", width = 3),
                     valueBoxOutput("vb_resps", width = 3),
@@ -91,7 +104,7 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-stethoscope"), " Síntomas"),
+                        tags$h2(tags$i(class = "fa fa-stethoscope"), " Síntomas COVID-19"),
                         tags$hr()
                     ),
                     column(
@@ -155,12 +168,20 @@ bs4DashPage(
                             )
                         ),
                     bs4Card(
-                        title = "Consulta médica",
-                        highchartOutput("ssd_hc_cslta") 
+                        width = 12,
+                        title = "Acceso a consulta médica",
+                        fluidRow(
+                            column(6,highchartOutput("ssd_hc_cslta") ),
+                            column(6, highchartOutput("ssd_hc_cslta_b"))
+                        )
                     ),
                     bs4Card(
-                        title = "Exámenes",
-                        highchartOutput("ssd_hc_examn") 
+                        width = 12,
+                        title = "Acceso a examen diagnóstico",
+                        fluidRow(
+                            column(6, highchartOutput("ssd_hc_examn")),
+                            column(6, highchartOutput("ssd_hc_examn_b"))    
+                        )
                     ),
                     bs4Card(
                         title = "Confirmación a través de examen COVID-19",
@@ -179,34 +200,33 @@ bs4DashPage(
                         highchartOutput("ssd_hc_ctaex") 
                     ),
                     bs4Card(
-                        width = 12,
-                        title = "Razones para no realizar consulta médica o no realizarse examen",
-                        fluidRow(
-                            column(
-                                6,
-                                selectizeInput(
-                                    "razones_opt", NULL,
-                                    choices = OPTS_RAZONES,
-                                    multiple = FALSE,
-                                    width = "100%"
-                                )
-                            )
-                        ),
-                        fluidRow(
-                            column(
-                                6,
-                                highchartOutput("ssd_hc_s3con", height = 345)
+                        width = 6,
+                        title = "Razones entregadas entre las personas que declaran síntomas y decidieron no consultar",
+                        selectizeInput(
+                            "razones_opt",
+                            NULL,
+                            choices = OPTS_RAZONES,
+                            multiple = FALSE,
+                            width = "100%"
                             ),
-                            column(
-                                6,
-                                highchartOutput("ssd_hc_s8exm", height = 345)
-                            )
-                        )
-                       
+                        highchartOutput("ssd_hc_s3con", height = 345)
                     ),
                     bs4Card(
-                        title = "Consulta médica siendo sospechoso",
-                        highchartOutput("ssd_hc_cslta_sos") 
+                        width = 6,
+                        title = "Razones entregadas entre las personas que teniendo indicado realizarse un test diagnóstico no se lo realizaron",
+                        selectizeInput(
+                            "razones_opt2",
+                            NULL,
+                            choices = OPTS_RAZONES2,
+                            selected = c("espera", "nodisp", "nograve", "nosabia", "nimporta"),
+                            multiple = TRUE,
+                            width = "100%"
+                        ),
+                        highchartOutput("ssd_hc_s8exm", height = 345)
+                    ),
+                    bs4Card(
+                        title = "Positividad de los test diagnósticos",
+                        highchartOutput("ssd_hc_posit2") 
                     ),
                 )
             ),
@@ -248,10 +268,37 @@ bs4DashPage(
                         width = 12,
                         title = "Proporción de personas que consideran el COVID19 un problema de alto riesgo",
                         highchartOutput("persgo_alto") 
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Proporción de personas que consideran que ellos y sus cercanos cumplen con las recomendaciones de cuidado frente a COVID19",
+                        highchartOutput("pergdo_cump") 
+                    )
+                    
+                    
+                )
+            ),
+# mapas -------------------------------------------------------------------
+            bs4TabItem(
+                tabName = "mapas",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-map-marked-alt"), " Mapas"),
+                        tags$hr()
+                    ),
+                    column(
+                        12,
+                        tags$iframe(
+                            src = "https://visualizaciones-movid.netlify.app",
+                            frameborder="0",
+                            style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;width:100%;top:0px;left:0px;right:0px;bottom:0px",
+                            height="700px", 
+                            width="100%"
+                        )
                     )
                 )
             ),
-
 # participantes -----------------------------------------------------------
             bs4TabItem(
                 tabName = "participantes",
@@ -296,27 +343,6 @@ bs4DashPage(
                         title = "Respuestas",
                         highchartOutput("part_respuestas", height = "100%")
                     ),
-                )
-            ),
-# mapas -------------------------------------------------------------------
-            bs4TabItem(
-                tabName = "mapas",
-                fluidRow(
-                    column(
-                        12,
-                        tags$h2(tags$i(class = "fa fa-map-marked-alt"), " Mapas"),
-                        tags$hr()
-                    ),
-                    column(
-                        12,
-                        tags$iframe(
-                            src = "https://visualizaciones-movid.netlify.app",
-                            frameborder="0",
-                            style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;width:100%;top:0px;left:0px;right:0px;bottom:0px",
-                            height="700px", 
-                            width="100%"
-                            )
-                    )
                 )
             )
 # end bs4DashPage ---------------------------------------------------------

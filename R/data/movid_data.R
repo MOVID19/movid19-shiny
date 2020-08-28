@@ -165,45 +165,41 @@ mv <- mv %>%
 # 
 # lubridate::wday(Sys.Date(), week_start = 1)
 
-mv <- mv %>% 
-  mutate(
-    semana_fecha_miercoles = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
-    semana_fecha_miercoles = if_else(
-      lubridate::wday(as.Date(fecha), week_start = 1) > 3,
-      semana_fecha_miercoles + lubridate::days(7),
-      semana_fecha_miercoles
-      )
-  ) %>% 
-  rename(semana_fecha = semana_fecha_miercoles)
-
-# mv %>% 
-#   filter(lubridate::month(fecha) >= 08) %>% 
-#   count(as.Date(fecha), semana_fecha_miercoles) %>% 
-#   tidyr::spread(semana_fecha_miercoles, n) %>% 
-#   print(n = Inf)
-# 
-# mv %>% 
-#   group_by(semana) %>%
-#   summarise(fecha_min = as.Date(min(fecha)), fecha_max = as.Date(max(fecha))) %>% 
-#   arrange(semana) %>% 
-#   mutate(
-#     # semana parte desde 0, luego debo considerar el miercoles anterior, por eso -2
-#     # luego dado que es miercoles va el 3
-#     # https://community.rstudio.com/t/converting-week-number-and-year-into-date/27202
-#     semana_fecha = as.Date(paste(2020, semana - 1, 1, sep="-"), "%Y-%U-%u"),
-#     semana_fecha_miercoles = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
-#     semana_fecha_miercoles_anterior = as.Date(paste(2020, semana - 2, 3, sep="-"), "%Y-%U-%u"),
-#     
-#     
-#     # semana_fecha2 = semana_fecha - lubridate::days(5)
-#   )
-# 
 # mv <- mv %>% 
 #   mutate(
-#     semana_fecha = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
-#     )
-# 
-# count(mv, semana_fecha)
+#     semana_fecha_miercoles = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
+#     semana_fecha_miercoles = if_else(
+#       lubridate::wday(as.Date(fecha), week_start = 1) > 3,
+#       semana_fecha_miercoles + lubridate::days(7),
+#       semana_fecha_miercoles
+#       )
+#   ) %>% 
+#   rename(semana_fecha = semana_fecha_miercoles)
+
+mv <- mv %>%
+  mutate(
+    semana_fecha = as.Date(paste(2020, semana - 1, 3, sep="-"), "%Y-%U-%u"),
+    fecha_date = as.Date(fecha)
+    )
+
+# 20200827 ----------------------------------------------------------------
+# considerar semana completas
+semanas_incompletas <- mv %>% 
+  count(semana, fecha_date) %>%
+  group_by(semana) %>% 
+  mutate(dias = n()) %>%
+  filter(dias < 7) %>% 
+  distinct(semana)
+
+mv <- mv %>% 
+  anti_join(semanas_incompletas, by = "semana")
+
+
+
+
+# mv %>% 
+#   count(as.Date(fecha)) %>% 
+#   tail(10)
 
 # 20200810 ----------------------------------------------------------------
 mv <- mv %>% 

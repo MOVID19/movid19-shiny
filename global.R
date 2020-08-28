@@ -96,16 +96,33 @@ OPTS_DESAGREGAR <- c(
 )
 
 OPTS_RAZONES <- c(
+  "Porque tenía que esperar mucho tiempo" = "tiempo",
+  "Porque no le pareció importante" = "nimporta",
+  "Por el costo económico" = "costo",
+  "Porque no sabía dónde realizarlo" = "nosabia",
+  "Porque está evaluando si los síntomas empeoran antes de consultar" = "empeorar",
+  "Por miedo a contagiarse" = "temor",
+  "Porque los síntomas son leves o habituales" = "leves",
+  "Por que el sistema de salud está muy lleno" = "sistlleno",
+  "Otra" = "otra"
+)
+
+OPTS_RAZONES2 <- c(
   "Porque no le pareció importante" = "nimporta",
   "Por el costo económico" = "costo",
   "Porque no sabía dónde realizarlo" = "nosabia",
   "Porque tenía que esperar mucho tiempo" = "tiempo",
-  # "Porque está evaluando si los síntomas empeoran antes de consultar" = "empeorar",
-  # "Por miedo a contagiarse" = "temor",
-  # "Porque los síntomas son leves o habituales" = "leves",
-  # "Por que el sistema de salud está muy lleno" = "sistlleno",
+  "Porque el examen no estaba disponible" = "nodisp",
+  "Porque está esperando poder realizárselo" = "espera",
+  "Porque no estaba suficientemente grave" = "nograve",
   "Otra" = "otra"
 )
+
+OPTS_RAZONES2_DF <- OPTS_RAZONES2 %>%
+  as.list() %>% 
+  tibble::enframe() %>% 
+  unnest(cols = c(value)) %>% 
+  mutate(value = paste0("s8_exmn_", value))
 
 
 # practicas ---------------------------------------------------------------
@@ -185,9 +202,18 @@ options(
         )
       ),
       exporting = list(
+        # scale = 1.75,
+        sourceWidth = 1024,
+        sourceHeight = 768,
+        chartOptions = list(
+          credits = list(
+            text = "Monitoreo Nacional de Prácticas y Síntomas COVID-19 (MOVID19). www.movid19.cl",
+            style = list(fontSize = "11px")
+          )
+        ),
         buttons = list(
           contextButton = list(
-            symbol = 'url(https://www.iconsdb.com/icons/preview/gray/download-2-xxl.png)',
+            symbol = 'url(img/downloadicon.png)',
             # symbol = "url(https://icon-library.com/images/3-dots-icon/3-dots-icon-28.jpg)",
             symbolSize = 18,
             symbolX = 21,
@@ -213,7 +239,7 @@ guide <- Cicerone$
   )$ 
   step(
     el = "sidebarItemExpanded",
-    title = "Secciones del dashboard",
+    title = "Secciones",
     description = "Cada sección esta asociada a ciertos aspectos relevantes
     de la encuesta MOVID19.",
     position = "right-center"
@@ -230,7 +256,7 @@ guide <- Cicerone$
     "Gráficos",
     "Cada uno de los gráficos es interactivo, y en cada uno de ellos puedes
     descargar tanto la visualización como imagen o los datos en un archivo
-    excel haciendo click en el ícono <img width='16px' src='https://www.iconsdb.com/icons/preview/gray/download-2-xxl.png'/>
+    excel haciendo click en el ícono <img width='16px' src='img/downloadicon.png'/>
     ubicado en la esquina superior derecha.",
     position = "mid-center"
   )

@@ -604,6 +604,7 @@ shinyServer(function(input, output, session) {
       d,
       "column",
       hcaes(categoria, n, group = tipo),
+      visible = attr(dssd, "visible")
       # stacking = "normal"
       ) %>% 
       hc_xAxis(title = list(text = "")) %>%

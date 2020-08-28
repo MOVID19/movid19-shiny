@@ -252,7 +252,7 @@ guide <- Cicerone$
     position = "mid-center"
   )$
   step(
-    "inicial_1",
+    "inicial",
     "Gráficos",
     "Cada uno de los gráficos es interactivo, y en cada uno de ellos puedes
     descargar tanto la visualización como imagen o los datos en un archivo

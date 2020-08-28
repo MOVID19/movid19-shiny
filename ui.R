@@ -94,7 +94,7 @@ bs4DashPage(
                     bs4Card(
                         width = 6,
                         title = "Proporción de personas que salen al menos 2 veces por semana",
-                        highchartOutput("inicial_1")
+                        highchartOutput("inicial")
                         ),
                     bs4Card(
                         width = 6,

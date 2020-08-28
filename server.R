@@ -174,7 +174,7 @@ shinyServer(function(input, output, session) {
       )
   })
   
-  output$inicial_1 <- renderHighchart({
+  output$inicial <- renderHighchart({
     
     d <- movid %>% 
       select(semana_fecha, contains("p1_pra"), -contains("p1_pra_otro_TEXT"),

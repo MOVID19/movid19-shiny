@@ -1,8 +1,8 @@
 input <- list(
   snt_opt = c("snt_tos", "snt_odinofagia"), 
   snt_sos = "sosp_minsal0530",
-  # ssd_opt = "prev",
-  ssd_opt = "todo",
+  ssd_opt = "prev",
+  # ssd_opt = "todo",
   razones_opt = "temor",
   razones_opt2 = c("espera", "nodisp", "nograve", "nosabia", "nimporta")
   )
@@ -659,29 +659,30 @@ shinyServer(function(input, output, session) {
   
     d <- dssd %>% 
       select(tipo, all_of(str_c("s8_exmn_", input$razones_opt2))) %>% 
-      mutate_if(is.numeric, replace_na, 0) %>% 
-      group_by(tipo) %>% 
-      summarise_all(sum) %>% 
-      gather(value, n, -tipo)
+      gather(cat, valor, -tipo) %>% 
+      count(tipo, cat, valor) %>% 
+      filter(!is.na(valor)) %>% 
+      spread(valor, n) %>% 
+      mutate(proporcion = `1` / (`1` + `0`), cantidad = (`1` + `0`))
     
     d <- d %>% 
-      left_join(OPTS_RAZONES2_DF, by = "value") %>% 
+      left_join(OPTS_RAZONES2_DF, by = c("cat" = "value")) %>% 
       rename(categoria = name)
     
     d <- d %>% 
-      mutate(categoria = fct_reorder(categoria, n, .fun = sum, .desc = TRUE)) %>% 
+      mutate(categoria = fct_reorder(categoria, cantidad, .fun = sum, .desc = TRUE)) %>% 
       arrange(tipo, categoria)
     
     hchart(
       d,
       "column",
-      hcaes(categoria, n, group = tipo),
+      hcaes(categoria, proporcion, group = tipo),
       visible = attr(dssd, "visible")
       # stacking = "normal"
       ) %>% 
+      hc_tooltip_n() %>% 
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = "")) %>% 
-      hc_tooltip(table = TRUE, valueDecimals = 0)
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
     
   })  
 
@@ -710,6 +711,7 @@ shinyServer(function(input, output, session) {
       hcaes(semana_fecha, promedio, group = tipo_lbl)
     ) %>%
       hc_tooltip_n(separado = FALSE) %>%
+      hc_tooltip(sort = TRUE) %>% 
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0)  
     
@@ -737,6 +739,7 @@ shinyServer(function(input, output, session) {
       hcaes(semana_fecha, proporcion, group = tipo_lbl)
     ) %>%
       hc_tooltip_n(separado = FALSE) %>%
+      hc_tooltip(sort = TRUE) %>% 
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)  
     
@@ -764,6 +767,7 @@ shinyServer(function(input, output, session) {
       hcaes(semana_fecha, proporcion, group = tipo_lbl)
     ) %>%
       hc_tooltip_n(separado = FALSE) %>%
+      hc_tooltip(sort = TRUE) %>% 
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
     

@@ -4,7 +4,8 @@ input <- list(
   ssd_opt = "prev",
   # ssd_opt = "todo",
   razones_opt = "temor",
-  razones_opt2 = c("espera", "nodisp", "nograve", "nosabia", "nimporta")
+  razones_opt2 = c("espera", "nodisp", "nograve", "nosabia", "nimporta"),
+  razones_opt3 = c("temor", "cancela", "costo", "sistlleno")
   )
 
 shinyServer(function(input, output, session) {
@@ -36,8 +37,10 @@ shinyServer(function(input, output, session) {
     
     dssd <- movid %>%
       select(
-        semana_fecha, 
+        # importante que esta vaya al principio
         all_of(input$ssd_opt), 
+        pob_id,
+        semana_fecha, 
         s2_consulta, 
         sosp_minsal0326, 
         s7_exmn_realizado,
@@ -51,9 +54,12 @@ shinyServer(function(input, output, session) {
         sosp_movid19,
         contacto,
         sintoma,
-        s6_exmn_indicado
+        s6_exmn_indicado,
+        crn1_consulta_reg,
+        crn2_posponer_reg,
+        starts_with("crn3_pq")
       ) %>% 
-      rename_at(vars(2), ~"tipo")
+      rename_at(vars(1), ~"tipo")
     
     # dssd %>% count(tipo, sort = TRUE)
     # dssd %>%
@@ -90,15 +96,17 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$ssd_opt,  { values$lastUpdated <- "ssd_opt"  })
   observeEvent(input$ssd_opt2, { values$lastUpdated <- "ssd_opt2" })
-
-  observeEvent(c(input$ssd_opt, input$ssd_opt2), {
+  observeEvent(input$ssd_opt3, { values$lastUpdated <- "ssd_opt3" })
+  observeEvent(input$ssd_opt4, { values$lastUpdated <- "ssd_opt4" })
+  
+  observeEvent(c(input$ssd_opt, input$ssd_opt2, input$ssd_opt3, input$ssd_opt4), {
     
     x <- values$lastUpdated
     # message("observeEvent: ", x)
     v <- input[[x]]
     
     lapply(
-      c("ssd_opt", "ssd_opt2"),
+      c("ssd_opt", "ssd_opt2", "ssd_opt3"),
       function(x) {
         updateSelectInput(
           session = session,
@@ -232,7 +240,6 @@ shinyServer(function(input, output, session) {
     
   })
   
-
 # sintomas ----------------------------------------------------------------
   output$snt_hc_tlsnt <- renderHighchart({
    
@@ -686,7 +693,126 @@ shinyServer(function(input, output, session) {
     
   })  
 
+
+# sistema salud cronico ---------------------------------------------------
+
+  output$ssd_hc_cslta_cronico <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>% 
+      group_by(pob_id) %>% 
+      filter(semana_fecha == max(semana_fecha)) %>% 
+      ungroup() %>% 
+      filter(!is.na(crn1_consulta_reg)) %>% 
+      group_by(crn1_consulta_reg, tipo) %>% 
+      count() %>% 
+      ungroup() %>% 
+      mutate(prop = round(n/sum(n), 4)* 100) %>% 
+      rename(cantidad = n)
+    
+    d <- d %>%
+      arrange(crn1_consulta_reg) %>% 
+      mutate(
+        etiqueta = ifelse(
+          crn1_consulta_reg == 0,
+          "No consulta",
+          "Consulta"
+        ),
+        etiqueta = fct_inorder(etiqueta)
+      )
+    
+    hchart(
+      d,
+      "column",
+      hcaes(etiqueta, prop, group = tipo),
+      visible = attr(dssd, "visible")
+    ) %>%
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = paste(
+        "Porcentaje de personas que no han asistido a una consulta",
+        "para controlar su enfermedad crónica")
+      )
+    
+    
+  })
   
+  output$ssd_hc_cslta_cronico_posponer <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>% 
+      group_by(pob_id) %>% 
+      filter(semana_fecha == max(semana_fecha)) %>% 
+      ungroup() %>% 
+      filter(!is.na(crn2_posponer_reg)) %>% 
+      group_by(crn2_posponer_reg, tipo) %>% 
+      count() %>% 
+      ungroup() %>% 
+      mutate(prop = round(n/sum(n), 4)* 100) %>% 
+      rename(cantidad = n)
+    
+    d <- d %>%
+      arrange(crn2_posponer_reg) %>% 
+      mutate(
+        etiqueta = ifelse(
+          crn2_posponer_reg == 0,
+          "No pospone",
+          "Pospone"
+        ),
+        etiqueta = fct_inorder(etiqueta)
+      )
+    
+    hchart(
+      d,
+      "column",
+      hcaes(etiqueta, prop, group = tipo),
+      visible = attr(dssd, "visible")
+    ) %>%
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = paste(
+        "Porcentaje de personas que posponen una consulta",
+        "para controlar su enfermedad crónica")
+      )
+    
+  })
+  
+  output$ssd_hc_crn3_pq_cronico <- renderHighchart({
+    
+    dssd <- dssd()
+    
+    d <- dssd %>% 
+      select(tipo, all_of(str_c("crn3_pq_", input$razones_opt3, "_reg"))) %>% 
+      gather(cat, valor, -tipo) %>% 
+      count(tipo, cat, valor) %>% 
+      filter(!is.na(valor)) %>% 
+      spread(valor, n) %>% 
+      mutate(proporcion = `1` / (`1` + `0`), cantidad = (`1` + `0`))
+    
+    d <- d %>% 
+      left_join(OPTS_RAZONES3_DF, by = c("cat" = "value")) %>% 
+      rename(categoria = name)
+    
+    d <- d %>% 
+      mutate(categoria = fct_reorder(categoria, cantidad, .fun = sum, .desc = TRUE)) %>% 
+      arrange(tipo, categoria)
+    
+    hchart(
+      d,
+      "column",
+      hcaes(categoria, proporcion, group = tipo),
+      visible = attr(dssd, "visible")
+      # stacking = "normal"
+    ) %>% 
+      hc_tooltip_n() %>% 
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
+    
+  })  
   
 # prácticas sociales ------------------------------------------------------
 
@@ -772,6 +898,33 @@ shinyServer(function(input, output, session) {
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
     
   })  
+  
+  output$pcsoc_transporte <- renderHighchart({
+    
+    d <- movid %>% 
+      select(semana_fecha, contains("p3_tra"), -p3_transp_otra_TEXT) %>% 
+      filter(complete.cases(.)) %>% 
+      mutate_if(is.numeric, ~ ifelse(.x > 0, 1, 0)) %>% gather(tipo, valor, -semana_fecha) %>% 
+      group_by(semana_fecha, tipo) %>% 
+      summarise(
+        proporcion = 100 * mean(valor, na.rm = TRUE),
+        cantidad = n(),
+        .groups = "drop"
+      ) %>% 
+      left_join(TRANSPORTE_DF, by = "tipo") %>% 
+      arrange(semana_fecha, tipo_lbl)
+    
+    hchart(
+      d,
+      "line",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_tooltip_n(separado = FALSE) %>%
+      hc_tooltip(sort = TRUE) %>% 
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0)  
+    
+  })
   
 # percepcion de riesgo ----------------------------------------------------
 

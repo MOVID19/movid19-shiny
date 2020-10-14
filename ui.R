@@ -25,8 +25,23 @@ bs4DashPage(
             ),
             bs4SidebarMenuItem(
                 text = "Acceso sistema de salud",
-                tabName = "sistema",
-                icon = "hospital-o"
+                icon = "hospital",
+                startExpanded = FALSE,
+                bs4SidebarMenuSubItem(
+                    text = "COVID-19",
+                    tabName = "sistema_covid",
+                    icon = "ambulance"
+                ),
+                bs4SidebarMenuSubItem(
+                    text = "Crónicos",
+                    tabName = "sistema_cronicos",
+                    icon = "lungs-virus"
+                ),
+                bs4SidebarMenuSubItem(
+                    text = "No COVID-19",
+                    tabName = "sistema_nocovid",
+                    icon = "pills"
+                )
             ),
             bs4SidebarMenuItem(
                 text = "Prácticas sociales",
@@ -158,7 +173,7 @@ bs4DashPage(
             ),
 # sistema salud -----------------------------------------------------------
             bs4TabItem(
-                tabName = "sistema",
+                tabName = "sistema_covid",
                 fluidRow(
                     column(
                         12,
@@ -238,6 +253,72 @@ bs4DashPage(
                 )
             ),
 
+
+# cronicos ----------------------------------------------------------------
+            bs4TabItem(
+                tabName = "sistema_cronicos",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-lungs-virus"), " Crónicos"),
+                        tags$hr()
+                    ),
+                    column(
+                        12,
+                        column(
+                            6,
+                            selectizeInput("ssd_opt3", "Seleccione variable para desagregar", 
+                                           choices = OPTS_DESAGREGAR, width = "100%")
+                            
+                        )
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Acceso a consulta médica",
+                        highchartOutput("ssd_hc_cslta_cronico") 
+                    ),
+                    bs4Card(
+                        width = 6,
+                        title = "Acceso a consulta médica",
+                        highchartOutput("ssd_hc_cslta_cronico_posponer") 
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Acceso a consulta médica",
+                        selectizeInput(
+                            "razones_opt3",
+                            NULL,
+                            choices = OPTS_RAZONES3,
+                            selected = c("temor", "cancela", "costo", "sistlleno"),
+                            multiple = TRUE,
+                            width = "100%"
+                        ),
+                        highchartOutput("ssd_hc_crn3_pq_cronico") 
+                    )
+                )
+            ),
+
+# no covid19 --------------------------------------------------------------
+            bs4TabItem(
+                tabName = "sistema_cronicos",
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-pills"), " No COVID-19"),
+                        tags$hr()
+                    ),
+                    column(
+                        12,
+                        column(
+                            6,
+                            selectizeInput("ssd_opt3", "Seleccione variable para desagregar", 
+                                           choices = OPTS_DESAGREGAR, width = "100%")
+                            
+                        )
+                    ),
+                )
+            ),
+
 # prácticas sociales ------------------------------------------------------
             bs4TabItem(
                 tabName = "social",
@@ -259,6 +340,11 @@ bs4DashPage(
                     bs4Card(
                         title = "Proporción de personas que no salen",
                         highchartOutput("pcsoc_nosalen") 
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Proporción de personas que se transportan según medio de movilización",
+                        highchartOutput("pcsoc_transporte") 
                     ),
                 )
             ),

@@ -124,16 +124,42 @@ OPTS_RAZONES2_DF <- OPTS_RAZONES2 %>%
   unnest(cols = c(value)) %>% 
   mutate(value = paste0("s8_exmn_", value))
 
+OPTS_RAZONES3 <- c(
+  `Porque no le pareció importante` = "nimporta",
+  `Por el costo económico` = "costo",
+  `Porque no sabía dónde realizarlo` = "nosabia",
+  `Porque tenía que esperar mucho tiempo` = "tiempo.1",
+  `Por miedo a contagiarse de COVID-19` = "temor",
+  `Por que el sistema de salud está muy lleno` = "sistlleno",
+  `No contó con transporte para trasladarse al lugar de atención` = "transporte",
+  `No tuvo con quien dejar a personas a su cuidado` = "cuidados",
+  `El servicio de salud le suspendió la hora y no le ha reagendado` = "cancela",
+  Otra = "otra"
+)
+
+OPTS_RAZONES3_DF <- OPTS_RAZONES3 %>%
+  as.list() %>% 
+  tibble::enframe() %>% 
+  unnest(cols = c(value)) %>% 
+  mutate(value = paste0("crn3_pq_", value, "_reg"))
 
 # practicas ---------------------------------------------------------------
+# Acá son las etiquetas para cada práctica social
 PRACTICAS_DF <- tibble(
   tipo = c("p1_pra_trabajo", "p1_pra_tramite", "p1_pra_recrea", "p1_pra_visita", 
-    "p1_pra_invitado", "p1_pra_transporte"),
+    "p1_pra_invitado", "p1_pra_transporte", "p1_pra_protesta"),
   tipo_lbl = c("Trabajar", "Trámite", "Recreación", "Visitar amigos o familiares",
-               "Recibido vistias de amigos o familiares", "Utilizado transporte público")
+               "Recibido vistias de amigos o familiares", "Utilizado transporte público",
+               "Protestas")
 ) %>% 
   mutate(tipo_lbl = fct_inorder(tipo_lbl))
 
+TRANSPORTE_DF <- tibble(
+  tipo = c("p3_transp_publico",  "p3_transp_taxi", "p3_transp_vehiculo", 
+           "p3_transp_bici", "p3_transp_otra"),
+  tipo_lbl = c("Transporte público", "Taxi o colectivo", "Vehículo particular",
+               "Bicicleta", "Otra")) %>% 
+  mutate(tipo_lbl = fct_inorder(tipo_lbl))
 
 
 # highcharter -------------------------------------------------------------

@@ -19,6 +19,7 @@ suppressPackageStartupMessages({
 })
 
 # data --------------------------------------------------------------------
+dsoc  <- readRDS("data/dsoc.rds")
 movid <- readRDS("data/movid.rds")
 
 movid <- movid %>% 
@@ -52,7 +53,9 @@ movid <- movid %>%
           "Magallanes y la Antártica Chilena"
           )
       )
-    )
+    ) %>% 
+  mutate(crn3_pq_tiempo.1_reg = crn3_pq_tiempo.1)
+  
 
 
 # sintomas ----------------------------------------------------------------

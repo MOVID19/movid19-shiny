@@ -233,6 +233,53 @@ mv$soc3_desigualdad <- car::recode(mv$soc3_desigualdad, c("1='Muy de acuerdo';2=
 mv$soc4_represion <- car::recode(mv$soc4_represion, c("1='Muy de acuerdo';2='De acuerdo';3='Ni de acuerdo ni en desacuerdo';4= 'En desacuerdo'; 5='Muy en desacuerdo'"), as.factor = T,
                                  levels = c('Muy de acuerdo','De acuerdo', 'Ni de acuerdo ni en desacuerdo', 'En desacuerdo', 'Muy en desacuerdo'))
 
+mv %>% 
+  select(pob_id, semana_fecha, soc1_bienestar)
+
+mv %>% 
+  count(soc1_bienestar)
+
+
+dmensual <- mv %>% 
+  distinct(anio = lubridate::year(semana_fecha), mes = lubridate::month(semana_fecha), semana_fecha) %>% 
+  arrange(anio, mes, semana_fecha) %>% 
+  group_by(anio, mes) %>% 
+  filter(semana_fecha  == max(semana_fecha)) %>% 
+  ungroup()
+  
+dsoc <- mv %>% 
+  group_by(pob_id, anio = lubridate::year(semana_fecha), mes = lubridate::month(semana_fecha)) %>% 
+  summarise_at(
+    vars(soc1_bienestar, soc2_obedecer, soc3_desigualdad, soc4_represion),
+   ~last(na.omit(.x))
+  )
+
+dsoc <- left_join(dsoc, dmensual) %>%
+  ungroup() %>% 
+  select(-anio, -mes) %>% 
+  filter(semana_fecha >= lubridate::ymd(20200901)) 
+
+dsoc <- dsoc %>% 
+  arrange(pob_id, semana_fecha)
+
+# dsoc %>% 
+#   # group_by(pob_id) %>% 
+#   filter(semana_fecha >= lubridate::ymd(20201001)) %>% 
+#   filter(!is.na(soc1_bienestar))
+# 
+# dsoc %>% 
+#   group_by(pob_id) %>%
+#   filter(length(na.omit(soc1_bienestar)) >= 2)
+
+#   filter(pob_id == "0000daa20a9d6b34502b0e9c80318cd1a9d8fe456b3ef5c9e3c7d18121b65c6b") %>% 
+#   View()
+#                   
+# 
+# mv %>% 
+#   filter(pob_id == "0000daa20a9d6b34502b0e9c80318cd1a9d8fe456b3ef5c9e3c7d18121b65c6b") %>% 
+#   select(fecha, semana_fecha, starts_with("soc")) %>% 
+#   View()
+
 # -------------------------------------------------------------------------
 # mv <- mv %>%
 #   select(
@@ -253,4 +300,5 @@ mv$soc4_represion <- car::recode(mv$soc4_represion, c("1='Muy de acuerdo';2='De 
 
 # exportar ----------------------------------------------------------------
 saveRDS(mv, "data/movid.rds")
+saveRDS(dsoc, "data/dsoc.rds")
 

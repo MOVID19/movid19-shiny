@@ -33,11 +33,6 @@ bs4DashPage(
                     icon = "ambulance"
                 ),
                 bs4SidebarMenuSubItem(
-                    text = "Crónicos",
-                    tabName = "sistema_cronicos",
-                    icon = "lungs-virus"
-                ),
-                bs4SidebarMenuSubItem(
                     text = "No COVID-19",
                     tabName = "sistema_nocovid",
                     icon = "pills"
@@ -134,7 +129,6 @@ bs4DashPage(
                             6,
                             selectizeInput("ssd_opt", "Seleccione variable para desagregar", 
                                            choices = OPTS_DESAGREGAR, width = "100%")
-                            
                         )
                     ),
                     bs4Card(
@@ -253,14 +247,13 @@ bs4DashPage(
                 )
             ),
 
-
-# cronicos ----------------------------------------------------------------
+# no covid19 --------------------------------------------------------------
             bs4TabItem(
-                tabName = "sistema_cronicos",
+                tabName = "sistema_nocovid",
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-lungs-virus"), " Crónicos"),
+                        tags$h2(tags$i(class = "fa fa-pills"), " No COVID-19"),
                         tags$hr()
                     ),
                     column(
@@ -270,7 +263,71 @@ bs4DashPage(
                             selectizeInput("ssd_opt3", "Seleccione variable para desagregar", 
                                            choices = OPTS_DESAGREGAR, width = "100%")
                             
+                        ),
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Acceso a consulta médica",
+                        fluidRow(
+                            column(6,highchartOutput("ssd_hc_cslta_nocovid") ),
+                            column(6, highchartOutput("ssd_hc_cslta_b_nocovid"))
                         )
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Acceso a examen diagnóstico",
+                        fluidRow(
+                            column(6, highchartOutput("ssd_hc_examn_nocovid")),
+                            column(6, highchartOutput("ssd_hc_examn_b_nocovid"))    
+                        )
+                    ),
+                    bs4Card(
+                        title = "Tasa de test diagnóstico",
+                        highchartOutput("ssd_hc_posit_nocovid") 
+                    ),
+                    bs4Card(
+                        title = "Positividad de los test diagnósticos",
+                        highchartOutput("ssd_hc_posit2_nocovid") 
+                    ),
+                    bs4Card(
+                        title = "Días de espera consulta",
+                        highchartOutput("ssd_hc_ctads_nocovid") 
+                    ),
+                    bs4Card(
+                        title = "Días de espera entre toma examen y resultados",
+                        highchartOutput("ssd_hc_exesp_nocovid") 
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Razones entregadas entre las personas que declaran síntomas y decidieron no consultar",
+                        # selectizeInput(
+                        #     "razones_opt",
+                        #     NULL,
+                        #     choices = OPTS_RAZONES,
+                        #     multiple = FALSE,
+                        #     width = "100%"
+                        # ),
+                        highchartOutput("ssd_hc_s3con_nocovid", height = 345)
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Razones entregadas entre las personas que teniendo indicado realizarse un test diagnóstico no se lo realizaron",
+                        # selectizeInput(
+                        #     "razones_opt2",
+                        #     NULL,
+                        #     choices = OPTS_RAZONES2,
+                        #     selected = c("espera", "nodisp", "nograve", "nosabia", "nimporta"),
+                        #     multiple = TRUE,
+                        #     width = "100%"
+                        # ),
+                        highchartOutput("ssd_hc_s8exm_nocovid")
+                    )
+                ),
+                fluidRow(
+                    column(
+                        12,
+                        tags$h2(tags$i(class = "fa fa-lungs-virus"), " Crónicos"),
+                        tags$hr()
                     ),
                     bs4Card(
                         width = 6,
@@ -295,27 +352,6 @@ bs4DashPage(
                         ),
                         highchartOutput("ssd_hc_crn3_pq_cronico") 
                     )
-                )
-            ),
-
-# no covid19 --------------------------------------------------------------
-            bs4TabItem(
-                tabName = "sistema_cronicos",
-                fluidRow(
-                    column(
-                        12,
-                        tags$h2(tags$i(class = "fa fa-pills"), " No COVID-19"),
-                        tags$hr()
-                    ),
-                    column(
-                        12,
-                        column(
-                            6,
-                            selectizeInput("ssd_opt3", "Seleccione variable para desagregar", 
-                                           choices = OPTS_DESAGREGAR, width = "100%")
-                            
-                        )
-                    ),
                 )
             ),
 

@@ -365,7 +365,28 @@ bs4DashPage(
                     bs4Card(
                         width = 12,
                         title = "Proporción de personas que consideran que ellos y sus cercanos cumplen con las recomendaciones de cuidado frente a COVID19",
-                        highchartOutput("pergdo_cump") 
+                        highchartOutput("pergdo_cump")
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Proporción de personas que consideran que las autoridades sanitarias han puesto el bienestar de la población por sobre sus propios intereses",
+                        highchartOutput("peleg_bienestar")
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Proporción de personas que indican que pese a no estar de acuerdo con las autoridades, se debe obedecer las medidas",
+                        highchartOutput("peleg_obedecer")    
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Proporción de personas que consideran que la pandemia reflejó las enormes desiguadades sociales",
+                        highchartOutput("peleg_desigualdad")    
+                    ),
+                    bs4Card(
+                        width = 12,
+                        title = "Proporción de personas que indican que mientras la pandemia no esté controlada, no debería permitirse la protesta o movilización",
+                        highchartOutput("peleg_represion")    
+                        
                     )
                     
                     

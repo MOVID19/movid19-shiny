@@ -1013,6 +1013,175 @@ shinyServer(function(input, output, session) {
     
   })
 
+# percepcion de legitimidad ----------------------------------------------------
+  
+  output$peleg_bienestar <- renderHighchart({
+    
+    d <- movid %>% 
+      count(semana_fecha, tipo_lbl = soc1_bienestar) %>% 
+      filter(!is.na(tipo_lbl)) %>%
+      filter(tipo_lbl != "") %>% 
+      group_by(semana_fecha) %>% 
+      mutate(
+        proporcion = round(100 * n/sum(n), 2),
+        tipo_lbl = factor(
+          tipo_lbl,
+          levels = c("Muy de acuerdo",
+                     "De acuerdo",
+                     "Ni de acuerdo ni en desacuerdo",
+                     "En desacuerdo", 
+                     "Muy en desacuerdo"
+          )
+        )
+      ) %>% 
+      rename(cantidad = n)
+    
+    
+    hchart(
+      d,
+      "column",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_colors(c("#093C66", "#00668D", "#00B994", "#8ADD7E", "#F9F871")) %>% 
+      hc_plotOptions(
+        series = list(
+          stacking = "percent", 
+          borderWidth = 0,
+          dataLabels = list(enabled = TRUE)
+        )
+      ) %>% 
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
+    
+    
+  })
+  output$peleg_obedecer <- renderHighchart({
+    
+    d <- movid %>% 
+      count(semana_fecha, tipo_lbl = soc2_obedecer) %>% 
+      filter(!is.na(tipo_lbl)) %>%
+      filter(tipo_lbl != "") %>% 
+      group_by(semana_fecha) %>% 
+      mutate(
+        proporcion = round(100 * n/sum(n), 2),
+        tipo_lbl = factor(
+          tipo_lbl,
+          levels = c("Muy de acuerdo",
+                     "De acuerdo",
+                     "Ni de acuerdo ni en desacuerdo",
+                     "En desacuerdo", 
+                     "Muy en desacuerdo"
+          )
+        )
+      ) %>% 
+      rename(cantidad = n)
+    
+    
+    hchart(
+      d,
+      "column",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_colors(c("#093C66", "#00668D", "#00B994", "#8ADD7E", "#F9F871")) %>% 
+      hc_plotOptions(
+        series = list(
+          stacking = "percent", 
+          borderWidth = 0,
+          dataLabels = list(enabled = TRUE)
+        )
+      ) %>% 
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
+    
+    
+  })
+  
+  output$peleg_desigualdad <- renderHighchart({
+    
+    d <- movid %>% 
+      count(semana_fecha, tipo_lbl = soc3_desigualdad) %>% 
+      filter(!is.na(tipo_lbl)) %>%
+      filter(tipo_lbl != "") %>% 
+      group_by(semana_fecha) %>% 
+      mutate(
+        proporcion = round(100 * n/sum(n), 2),
+        tipo_lbl = factor(
+          tipo_lbl,
+          levels = c("Muy de acuerdo",
+                     "De acuerdo",
+                     "Ni de acuerdo ni en desacuerdo",
+                     "En desacuerdo", 
+                     "Muy en desacuerdo"
+          )
+        )
+      ) %>% 
+      rename(cantidad = n)
+    
+    
+    hchart(
+      d,
+      "column",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_colors(c("#093C66", "#00668D", "#00B994", "#8ADD7E", "#F9F871")) %>% 
+      hc_plotOptions(
+        series = list(
+          stacking = "percent", 
+          borderWidth = 0,
+          dataLabels = list(enabled = TRUE)
+        )
+      ) %>% 
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
+    
+    
+  })
+  
+  output$peleg_represion <- renderHighchart({
+    
+    d <- movid %>% 
+      count(semana_fecha, tipo_lbl = soc4_represion) %>% 
+      filter(!is.na(tipo_lbl)) %>%
+      filter(tipo_lbl != "") %>% 
+      group_by(semana_fecha) %>% 
+      mutate(
+        proporcion = round(100 * n/sum(n), 2),
+        tipo_lbl = factor(
+          tipo_lbl,
+          levels = c("Muy de acuerdo",
+                     "De acuerdo",
+                     "Ni de acuerdo ni en desacuerdo",
+                     "En desacuerdo", 
+                     "Muy en desacuerdo"
+          )
+        )
+      ) %>% 
+      rename(cantidad = n)
+    
+    
+    hchart(
+      d,
+      "column",
+      hcaes(semana_fecha, proporcion, group = tipo_lbl)
+    ) %>%
+      hc_colors(c("#093C66", "#00668D", "#00B994", "#8ADD7E", "#F9F871")) %>% 
+      hc_plotOptions(
+        series = list(
+          stacking = "percent", 
+          borderWidth = 0,
+          dataLabels = list(enabled = TRUE)
+        )
+      ) %>% 
+      hc_tooltip_n() %>%
+      hc_xAxis(title = list(text = "")) %>%
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0, max = 100)  
+    
+    
+  })
+  
 # participantes -----------------------------------------------------------
   
   output$part_sexo <- renderHighchart({

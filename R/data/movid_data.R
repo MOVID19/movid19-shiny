@@ -221,6 +221,18 @@ mv <- mv %>%
   )
 
 
+# percepcion de legitmidad ------------------------------------------------
+
+mv$soc1_bienestar <- car::recode(mv$soc1_bienestar, c("1='Muy de acuerdo';2='De acuerdo';3='Ni de acuerdo ni en desacuerdo';4= 'En desacuerdo'; 5='Muy en desacuerdo'"), as.factor = T,
+                                 levels = c('Muy de acuerdo','De acuerdo', 'Ni de acuerdo ni en desacuerdo', 'En desacuerdo', 'Muy en desacuerdo'))
+
+mv$soc2_obedecer <- car::recode(mv$soc2_obedecer, c("1='Muy de acuerdo';2='De acuerdo';3='Ni de acuerdo ni en desacuerdo';4= 'En desacuerdo'; 5='Muy en desacuerdo'"), as.factor = T,
+                                 levels = c('Muy de acuerdo','De acuerdo', 'Ni de acuerdo ni en desacuerdo', 'En desacuerdo', 'Muy en desacuerdo'))
+mv$soc3_desigualdad <- car::recode(mv$soc3_desigualdad, c("1='Muy de acuerdo';2='De acuerdo';3='Ni de acuerdo ni en desacuerdo';4= 'En desacuerdo'; 5='Muy en desacuerdo'"), as.factor = T,
+                                 levels = c('Muy de acuerdo','De acuerdo', 'Ni de acuerdo ni en desacuerdo', 'En desacuerdo', 'Muy en desacuerdo'))
+mv$soc4_represion <- car::recode(mv$soc4_represion, c("1='Muy de acuerdo';2='De acuerdo';3='Ni de acuerdo ni en desacuerdo';4= 'En desacuerdo'; 5='Muy en desacuerdo'"), as.factor = T,
+                                 levels = c('Muy de acuerdo','De acuerdo', 'Ni de acuerdo ni en desacuerdo', 'En desacuerdo', 'Muy en desacuerdo'))
+
 # -------------------------------------------------------------------------
 # mv <- mv %>%
 #   select(

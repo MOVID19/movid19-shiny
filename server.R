@@ -5,7 +5,8 @@ input <- list(
   # ssd_opt = "todo",
   razones_opt = "temor",
   razones_opt2 = c("espera", "nodisp", "nograve", "nosabia", "nimporta"),
-  razones_opt3 = c("temor", "cancela", "costo", "sistlleno")
+  razones_opt3 = c("temor", "cancela", "costo", "sistlleno"),
+  razones_opt4 = c("consulta", "examen", "insumos", "vacuna")
   )
 
 shinyServer(function(input, output, session) {
@@ -57,7 +58,9 @@ shinyServer(function(input, output, session) {
         s6_exmn_indicado,
         crn1_consulta_reg,
         crn2_posponer_reg,
-        starts_with("crn3_pq")
+        starts_with("crn3_pq"),
+        starts_with("nc"),
+        starts_with("nc3_posp")
       ) %>% 
       rename_at(vars(1), ~"tipo")
     
@@ -700,308 +703,92 @@ shinyServer(function(input, output, session) {
     
     dssd <- dssd()
     
-    d <- dssd %>%
-      filter(sintoma == 1) %>% 
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(100 * s2_consulta, na.rm = TRUE),
-        cantidad = sum(s2_consulta, na.rm = TRUE),
-        .groups = "drop"
+    d <- dssd %>% 
+      group_by(pob_id) %>% 
+      filter(semana_fecha == max(semana_fecha)) %>% 
+      ungroup() %>% 
+      filter(!is.na(nc1_problema_reg)) %>% 
+      group_by(nc1_problema_reg, tipo) %>% 
+      count() %>% 
+      ungroup() %>% 
+      mutate(prop = round(n/sum(n), 4)* 100) %>% 
+      rename(cantidad = n)
+    
+    d <- d %>%
+      arrange(nc1_problema_reg) %>% 
+      mutate(
+        etiqueta = ifelse(
+          nc1_problema_reg == 0,
+          "Sin problema",
+          "Nuevo problema"
+        ),
+        etiqueta = fct_inorder(etiqueta)
       )
     
     hchart(
       d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
+      "column",
+      hcaes(etiqueta, prop, group = tipo),
       visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip_n() %>%
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
       hc_subtitle(text = paste(
-        "Porcentaje de personas sintomáticas que consulta",
-        "a un profesional de salud por sus síntomas")
+        "Porcentaje de personas que presentan un nuevo problema de salud",
+        "no relacionado con COVID-19, para la última semana")
       )
     
   })
+  
   output$ssd_hc_cslta_b_nocovid <- renderHighchart({
     
     dssd <- dssd()
     
-    d <- dssd %>%
-      filter(sosp_minsal0530 == 1) %>% 
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(100 * s2_consulta, na.rm = TRUE),
-        cantidad = sum(s2_consulta, na.rm = TRUE),
-        .groups = "drop"
-      )
+    d <- dssd %>% 
+      group_by(pob_id) %>% 
+      filter(semana_fecha == max(semana_fecha), nc1_problema_reg == 1) %>% 
+      ungroup() %>% 
+      filter(!is.na(nc2_consulta_reg)) %>% 
+      group_by(nc2_consulta_reg, tipo) %>% 
+      count() %>% 
+      ungroup() %>% 
+      mutate(prop = round(n/sum(n), 4)* 100) %>% 
+      rename(cantidad = n)
     
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(text = " Porcentaje de personas que cumplen con definición 
-                  vigente de casos sospechosos que consulta a un profesional 
-                  de salud por sus síntomas")
-    
-  })
-  
-  output$ssd_hc_examn_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    d <- dssd %>%
-      filter(sosp_minsal0530 == 1) %>% 
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(100 * s7_exmn_realizado, na.rm = TRUE),
-        cantidad = sum(s7_exmn_realizado, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(
-        text = "Porcentaje de personas que cumplen definición de caso 
-        sospechoso que se realizan una prueba diagnóstica de COVID-19"
-      )
-    
-  })
-  output$ssd_hc_examn_b_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    d <- dssd %>%
-      filter(sosp_minsal0530 == 1) %>% 
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(100 * s6_exmn_indicado, na.rm = TRUE),
-        cantidad = sum(s6_exmn_indicado, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
-      hc_subtitle(
-        text = "Porcentaje de personas con indicación médica de realizarse un
-         test que se realizan una prueba diagnóstica de COVID-19"
-      )
-    
-  })
-  
-  output$ssd_hc_posit_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    # dssd %>% 
-    #   count(semana_fecha, s7_exmn_realizado) %>% 
-    #   spread(s7_exmn_realizado, n)
-    
-    d <- dssd %>%
-      select(semana_fecha, tipo, s7_exmn_realizado) %>% 
-      filter(!is.na(s7_exmn_realizado)) %>%
-      group_by(semana_fecha, tipo) %>%
-      summarise(
-        proporcion = mean(s7_exmn_realizado, na.rm = TRUE) * 1000,
-        cantidad = sum(s7_exmn_realizado, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), min = 0) %>%
-      hc_subtitle(text = "Tasa de test diagnóstico SARS-CoV-2 por cada mil personas")
-    
-  })
-  
-  output$ssd_hc_posit2_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    d <- dssd %>%
-      select(semana_fecha, tipo, s10_exmn_confirmado) %>%
-      filter(!is.na(s10_exmn_confirmado)) %>%
-      group_by(semana_fecha, tipo) %>%
-      summarise(
-        proporcion = mean(100 * s10_exmn_confirmado, na.rm = TRUE),
-        cantidad = sum(s10_exmn_confirmado, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>%
-      hc_subtitle(text = "Recibió resultado positivo en algún examen para
-                  enfermedad COVID19 realizado durante la última semana.")
-  })
-  
-  output$ssd_hc_ctads_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    d <- dssd %>%
-      filter(sintoma == 1, s2_consulta == 1) %>%
-      select(semana_fecha, tipo, sintoma, s2_consulta, s4_consulta_dias) %>%
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(s4_consulta_dias, na.rm = TRUE),
-        cantidad = n(),
-        .groups = "drop"
-      )
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
-      hc_subtitle(text = "Promedio de días de espera entre inicio de síntomas y 
-                  consulta al médico (en casos sintomáticos de deciden consultar)")
-    
-  })
-  
-  output$ssd_hc_exesp_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    d <- dssd %>%
-      select(semana_fecha, tipo, s7_exmn_realizado, s11_exmn_espera) %>% 
-      # cambio 1
-      filter(s7_exmn_realizado == 1) %>%
-      filter(s11_exmn_espera > 0) %>% 
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(s11_exmn_espera, na.rm = TRUE),
-        cantidad = n(),
-        .groups = "drop"
-      )
-    
-    presentes <- d %>% count(tipo) %>% pull(tipo) %>% as.character()
-    vsble <- attr(dssd, "visible")
-    vsble2 <- vsble[which(presentes %in% names(vsble))]
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = vsble2
-    ) %>%
-      hc_tooltip_n() %>%
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
-      hc_subtitle(text = "Promedio de días de espera entre toma y 
-                  resultado del test diagnóstico ")
-    
-  })
-  
-  output$ssd_hc_ctaex_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    d <- dssd %>%
-      select(semana_fecha, tipo, s4_consulta_dias, s11_exmn_espera, s7_exmn_realizado, sintoma) %>% 
-      filter(sintoma == 1, s7_exmn_realizado == 1) %>% 
-      filter(!is.na(s4_consulta_dias) | !is.na(s11_exmn_espera)) %>% 
-      # cambio 1
+    d <- d %>%
+      arrange(nc2_consulta_reg) %>% 
       mutate(
-        s4_consulta_dias = coalesce(s4_consulta_dias, 0),
-        s4_consulta_dias = ifelse(s4_consulta_dias < 0, 0, s4_consulta_dias),
-        s11_exmn_espera = coalesce(s11_exmn_espera, 0),
-        s11_exmn_espera = ifelse(s11_exmn_espera < 0, 0, s11_exmn_espera)
-      ) %>% 
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(s4_consulta_dias + s11_exmn_espera, na.rm = TRUE),
-        cantidad = n(),
-        .groups = "drop"
+        etiqueta = ifelse(
+          nc2_consulta_reg == 1,
+          "Consulta",
+          "No Consulta"
+        ),
+        etiqueta = fct_inorder(etiqueta)
       )
     
     hchart(
       d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
-      visible = attr(dssd, "visible")
-    ) %>%
-      hc_tooltip_n() %>% 
-      hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}"), min = 0) %>% 
-      hc_subtitle(text = "Promedio de días de espera entre inicio de síntomas y 
-                  resultado del test diagnóstico.")
-    
-    
-  })
-  
-  output$ssd_hc_s3con_nocovid <- renderHighchart({
-    
-    dssd <- dssd()
-    
-    dssd <- dssd %>%
-      filter(sintoma == 1) %>% 
-      select(all_of(str_c("s3_cons_", input$razones_opt)), everything()) %>% 
-      rename_at(vars(1), ~ "variable")
-    
-    d <- dssd %>%
-      group_by(semana_fecha, tipo) %>% 
-      summarise(
-        proporcion = mean(100 * variable, na.rm = TRUE),
-        cantidad = sum(variable, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    hchart(
-      d,
-      "line",
-      hcaes(semana_fecha, proporcion, group = tipo),
+      "column",
+      hcaes(etiqueta, prop, group = tipo),
       visible = attr(dssd, "visible")
     ) %>%
       hc_tooltip_n() %>%
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
-    # hc_title(text = "Razones para no consultar profesional")
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = paste(
+        "Porcentaje de personas que consultan",
+        "por ese nuevo problema de salud, para la última semana")
+      )
     
   })
   
-  output$ssd_hc_s8exm_nocovid <- renderHighchart({
+  output$ssd_hc_nc3_pq_nocovid <- renderHighchart({
     
     dssd <- dssd()
     
     d <- dssd %>% 
-      select(tipo, all_of(str_c("s8_exmn_", input$razones_opt2))) %>% 
+      select(tipo, all_of(str_c("nc3_posp_", input$razones_opt4, "_reg"))) %>% 
       gather(cat, valor, -tipo) %>% 
       count(tipo, cat, valor) %>% 
       filter(!is.na(valor)) %>% 
@@ -1009,7 +796,7 @@ shinyServer(function(input, output, session) {
       mutate(proporcion = `1` / (`1` + `0`), cantidad = (`1` + `0`))
     
     d <- d %>% 
-      left_join(OPTS_RAZONES2_DF, by = c("cat" = "value")) %>% 
+      left_join(OPTS_RAZONES4_DF, by = c("cat" = "value")) %>% 
       rename(categoria = name)
     
     d <- d %>% 
@@ -1027,8 +814,11 @@ shinyServer(function(input, output, session) {
       hc_xAxis(title = list(text = "")) %>%
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
     
-  })    
-   
+  })  
+  
+
+# cronicos ----------------------------------------------------------------
+
   output$ssd_hc_cslta_cronico <- renderHighchart({
     
     dssd <- dssd()

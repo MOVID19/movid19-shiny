@@ -4,7 +4,7 @@ bs4DashPage(
     loading_background = "white",
     sidebar_collapsed = TRUE,
     navbar = bs4DashNavbar(),
-# sidebar -----------------------------------------------------------------
+    # sidebar -----------------------------------------------------------------
     sidebar = bs4DashSidebar(
         title = NULL,
         expand_on_hover = TRUE,
@@ -66,7 +66,7 @@ bs4DashPage(
             )
         )
     ),
-# body --------------------------------------------------------------------
+    # body --------------------------------------------------------------------
     body = bs4DashBody(
         
         useSweetAlert(theme = "minimal"),
@@ -76,7 +76,7 @@ bs4DashPage(
         tags$script(src = "js/movid19.js"),
         
         bs4TabItems(
-# inicio ------------------------------------------------------------------
+            # inicio ------------------------------------------------------------------
             bs4TabItem(
                 tabName = "inicio",
                 fluidRow(
@@ -94,9 +94,9 @@ bs4DashPage(
                             aspectos de la pandemia en nuestro país con datos 
                             actualizados de nuestra encuesta. Recuerda seguir 
                             contestando o inscribirte  <a href='https://encuestacovid.uchile.cl/' target='_blank'>aquí</a>."
-                            ),
-                        tags$hr()
                         ),
+                        tags$hr()
+                    ),
                     valueBoxOutput("vb_casos", width = 3),
                     valueBoxOutput("vb_fallc", width = 3),
                     valueBoxOutput("vb_resps", width = 3),
@@ -105,16 +105,16 @@ bs4DashPage(
                         width = 6,
                         title = "Proporción de personas que salen al menos 2 veces por semana",
                         highchartOutput("inicial")
-                        ),
+                    ),
                     bs4Card(
                         width = 6,
                         title = "Acceso a consulta médica",
                         highchartOutput("inicial_2")
-                        )
-                    ),
-                
+                    )
                 ),
-# sintomas ----------------------------------------------------------------
+                
+            ),
+            # sintomas ----------------------------------------------------------------
             bs4TabItem(
                 tabName = "sintomas",
                 fluidRow(
@@ -165,7 +165,7 @@ bs4DashPage(
                     ),
                 )
             ),
-# sistema salud -----------------------------------------------------------
+            # sistema salud -----------------------------------------------------------
             bs4TabItem(
                 tabName = "sistema_covid",
                 fluidRow(
@@ -173,7 +173,7 @@ bs4DashPage(
                         12,
                         tags$h2(tags$i(class = "fa fa-hospital-o"), " Sistema de Salud"),
                         tags$hr()
-                        ),
+                    ),
                     column(
                         12,
                         column(
@@ -181,8 +181,8 @@ bs4DashPage(
                             selectizeInput("ssd_opt2", "Seleccione variable para desagregar", 
                                            choices = OPTS_DESAGREGAR, width = "100%")
                             
-                            )
-                        ),
+                        )
+                    ),
                     bs4Card(
                         width = 12,
                         title = "Acceso a consulta médica",
@@ -228,7 +228,7 @@ bs4DashPage(
                             choices = OPTS_RAZONES,
                             multiple = FALSE,
                             width = "100%"
-                            ),
+                        ),
                         highchartOutput("ssd_hc_s3con", height = 345)
                     ),
                     bs4Card(
@@ -246,8 +246,8 @@ bs4DashPage(
                     ),
                 )
             ),
-
-# no covid19 --------------------------------------------------------------
+            
+            # no covid19 --------------------------------------------------------------
             bs4TabItem(
                 tabName = "sistema_nocovid",
                 fluidRow(
@@ -266,61 +266,25 @@ bs4DashPage(
                         ),
                     ),
                     bs4Card(
-                        width = 12,
+                        title = "Nuevo problema de salud",
+                        highchartOutput("ssd_hc_cslta_nocovid") 
+                    ),
+                    bs4Card(
                         title = "Acceso a consulta médica",
-                        fluidRow(
-                            column(6,highchartOutput("ssd_hc_cslta_nocovid") ),
-                            column(6, highchartOutput("ssd_hc_cslta_b_nocovid"))
-                        )
+                        highchartOutput("ssd_hc_cslta_b_nocovid") 
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Acceso a examen diagnóstico",
-                        fluidRow(
-                            column(6, highchartOutput("ssd_hc_examn_nocovid")),
-                            column(6, highchartOutput("ssd_hc_examn_b_nocovid"))    
-                        )
-                    ),
-                    bs4Card(
-                        title = "Tasa de test diagnóstico",
-                        highchartOutput("ssd_hc_posit_nocovid") 
-                    ),
-                    bs4Card(
-                        title = "Positividad de los test diagnósticos",
-                        highchartOutput("ssd_hc_posit2_nocovid") 
-                    ),
-                    bs4Card(
-                        title = "Días de espera consulta",
-                        highchartOutput("ssd_hc_ctads_nocovid") 
-                    ),
-                    bs4Card(
-                        title = "Días de espera entre toma examen y resultados",
-                        highchartOutput("ssd_hc_exesp_nocovid") 
-                    ),
-                    bs4Card(
-                        width = 12,
-                        title = "Razones entregadas entre las personas que declaran síntomas y decidieron no consultar",
-                        # selectizeInput(
-                        #     "razones_opt",
-                        #     NULL,
-                        #     choices = OPTS_RAZONES,
-                        #     multiple = FALSE,
-                        #     width = "100%"
-                        # ),
-                        highchartOutput("ssd_hc_s3con_nocovid", height = 345)
-                    ),
-                    bs4Card(
-                        width = 12,
-                        title = "Razones entregadas entre las personas que teniendo indicado realizarse un test diagnóstico no se lo realizaron",
-                        # selectizeInput(
-                        #     "razones_opt2",
-                        #     NULL,
-                        #     choices = OPTS_RAZONES2,
-                        #     selected = c("espera", "nodisp", "nograve", "nosabia", "nimporta"),
-                        #     multiple = TRUE,
-                        #     width = "100%"
-                        # ),
-                        highchartOutput("ssd_hc_s8exm_nocovid")
+                        title = "Tipo de prestación que fue pospuesta",
+                        selectizeInput(
+                            "razones_opt4",
+                            NULL,
+                            choices = OPTS_RAZONES4,
+                            selected = c("consulta", "examen", "insumos", "vacuna"),
+                            multiple = TRUE,
+                            width = "100%"
+                        ),
+                        highchartOutput("ssd_hc_nc3_pq_nocovid") 
                     )
                 ),
                 fluidRow(
@@ -336,12 +300,12 @@ bs4DashPage(
                     ),
                     bs4Card(
                         width = 6,
-                        title = "Acceso a consulta médica",
+                        title = "Posponer consulta médica",
                         highchartOutput("ssd_hc_cslta_cronico_posponer") 
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Acceso a consulta médica",
+                        title = "Razones de no acceso a consulta médica",
                         selectizeInput(
                             "razones_opt3",
                             NULL,
@@ -354,8 +318,8 @@ bs4DashPage(
                     )
                 )
             ),
-
-# prácticas sociales ------------------------------------------------------
+            
+            # prácticas sociales ------------------------------------------------------
             bs4TabItem(
                 tabName = "social",
                 fluidRow(
@@ -384,7 +348,7 @@ bs4DashPage(
                     ),
                 )
             ),
-# percepciones ------------------------------------------------------------
+            # percepciones ------------------------------------------------------------
             bs4TabItem(
                 tabName = "percepcion",
                 fluidRow(
@@ -428,7 +392,7 @@ bs4DashPage(
                     
                 )
             ),
-# mapas -------------------------------------------------------------------
+            # mapas -------------------------------------------------------------------
             bs4TabItem(
                 tabName = "mapas",
                 fluidRow(
@@ -449,7 +413,7 @@ bs4DashPage(
                     )
                 )
             ),
-# participantes -----------------------------------------------------------
+            # participantes -----------------------------------------------------------
             bs4TabItem(
                 tabName = "participantes",
                 fluidRow(
@@ -495,8 +459,8 @@ bs4DashPage(
                     ),
                 )
             )
-# end bs4DashPage ---------------------------------------------------------
+            # end bs4DashPage ---------------------------------------------------------
         )
     )
-
+    
 )

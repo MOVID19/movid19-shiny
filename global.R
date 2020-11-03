@@ -127,6 +127,28 @@ OPTS_RAZONES2_DF <- OPTS_RAZONES2 %>%
   unnest(cols = c(value)) %>% 
   mutate(value = paste0("s8_exmn_", value))
 
+
+# no covid razones --------------------------------------------------------
+
+OPTS_RAZONES4 <- c(
+  `Consulta por problema de salud no COVID-19 (urgente o no urgente)` = "consulta",
+  `Vacunación obligatoria` = "vacuna",
+  `Examenes` = "examen",
+  `Retiro o compra de medicamentos y/o ayudas técnicas` = "insumos",
+  `Cirugías electivas o no urgentes` = "cirugia",
+  `Otra` = "otra",
+  `Ninguna de las anteriores` = "null"
+)
+
+OPTS_RAZONES4_DF <- OPTS_RAZONES4 %>%
+  as.list() %>% 
+  tibble::enframe() %>% 
+  unnest(cols = c(value)) %>% 
+  mutate(value = paste0("nc3_posp_", value, "_reg"))
+
+
+# cronicos ----------------------------------------------------------------
+
 OPTS_RAZONES3 <- c(
   `Porque no le pareció importante` = "nimporta",
   `Por el costo económico` = "costo",

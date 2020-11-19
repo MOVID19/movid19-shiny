@@ -719,8 +719,8 @@ shinyServer(function(input, output, session) {
       mutate(
         etiqueta = ifelse(
           nc1_problema_reg == 0,
-          "Sin problema",
-          "Nuevo problema"
+          "No",
+          "Sí"
         ),
         etiqueta = fct_inorder(etiqueta)
       )
@@ -736,7 +736,7 @@ shinyServer(function(input, output, session) {
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
       hc_subtitle(text = paste(
         "Porcentaje de personas que presentan un nuevo problema de salud",
-        "no relacionado con COVID-19, para la última semana")
+        "no relacionado con COVID-19, desde marzo a la fecha")
       )
     
   })
@@ -778,7 +778,7 @@ shinyServer(function(input, output, session) {
       hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
       hc_subtitle(text = paste(
         "Porcentaje de personas que consultan",
-        "por ese nuevo problema de salud, para la última semana")
+        "por ese nuevo problema de salud, desde marzo a la fecha")
       )
     
   })
@@ -806,13 +806,18 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "column",
-      hcaes(categoria, proporcion, group = tipo),
+      hcaes(categoria, proporcion*100, group = tipo),
       visible = attr(dssd, "visible")
       # stacking = "normal"
     ) %>% 
       hc_tooltip_n() %>% 
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = paste(
+        "Porcentaje de prestaciones postergadas",
+        "para aquellas personas que pospusieron, desde marzo a la fecha")
+      )
+    
     
   })  
   
@@ -927,13 +932,18 @@ shinyServer(function(input, output, session) {
     hchart(
       d,
       "column",
-      hcaes(categoria, proporcion, group = tipo),
+      hcaes(categoria, proporcion*100, group = tipo),
       visible = attr(dssd, "visible")
       # stacking = "normal"
     ) %>% 
       hc_tooltip_n() %>% 
       hc_xAxis(title = list(text = "")) %>%
-      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) 
+      hc_yAxis(title = list(text = ""), labels = list(format = "{value}%"), min = 0) %>% 
+      hc_subtitle(text = paste(
+        "Porcentaje de razones de no consultar",
+        "para aquellos enfermos crónicos que no consultan, desde marzo a la fecha")
+      )
+    
     
   })  
   

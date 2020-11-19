@@ -131,7 +131,7 @@ OPTS_RAZONES2_DF <- OPTS_RAZONES2 %>%
 # no covid razones --------------------------------------------------------
 
 OPTS_RAZONES4 <- c(
-  `Consulta por problema de salud no COVID-19 (urgente o no urgente)` = "consulta",
+  `Consulta atención médica` = "consulta",
   `Vacunación obligatoria` = "vacuna",
   `Examenes` = "examen",
   `Retiro o compra de medicamentos y/o ayudas técnicas` = "insumos",

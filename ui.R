@@ -145,7 +145,6 @@ bs4DashPage(
                         highchartOutput("snt_hc_contc")
                     ),
                     bs4Card(
-                        # title = "Confirmados y probables",
                         title = "Casos probables",
                         highchartOutput("snt_hc_confm")
                     ),
@@ -215,10 +214,6 @@ bs4DashPage(
                         title = "Días de espera entre toma examen y resultados",
                         highchartOutput("ssd_hc_exesp") 
                     ),
-                    # bs4Card(
-                    #     title = "Días de espera entre síntomas y resultados",
-                    #     highchartOutput("ssd_hc_ctaex") 
-                    # ),
                     bs4Card(
                         width = 12,
                         title = "Razones entregadas entre las personas que declaran síntomas y decidieron no consultar",
@@ -253,7 +248,7 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-pills"), " No COVID-19"),
+                        tags$h2(tags$i(class = "fa fa-pills"), " Nuevos problemas de salud en pandemia"),
                         tags$hr()
                     ),
                     column(
@@ -290,7 +285,7 @@ bs4DashPage(
                 fluidRow(
                     column(
                         12,
-                        tags$h2(tags$i(class = "fa fa-lungs-virus"), " Crónicos"),
+                        tags$h2(tags$i(class = "fa fa-lungs-virus"), " Personas con enfermedades crónicas"),
                         tags$hr()
                     ),
                     bs4Card(
@@ -359,32 +354,32 @@ bs4DashPage(
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que consideran el COVID19 un problema de alto riesgo",
+                        title = "El COVID-19 es un problema de alto riesgo y/o amenaza",
                         highchartOutput("persgo_alto") 
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que consideran que ellos y sus cercanos cumplen con las recomendaciones de cuidado frente a COVID19",
+                        title = "Yo y mis cercanos cumplimos con las recomendaciones de cuidado frente a COVID19",
                         highchartOutput("pergdo_cump")
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que consideran que las autoridades sanitarias han puesto el bienestar de la población por sobre sus propios intereses",
+                        title = "Las autoridades sanitarias han puesto el bienestar de la población por sobre sus propios intereses",
                         highchartOutput("peleg_bienestar")
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que indican que pese a no estar de acuerdo con las autoridades, se debe obedecer las medidas",
+                        title = "Aunque a veces no estemos de acuerdo con las autoridades sanitarias y sus medidas, es nuestro deber seguir sus indicaciones al pie de la letra",
                         highchartOutput("peleg_obedecer")    
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que consideran que la pandemia reflejó las enormes desiguadades sociales",
+                        title = "En Chile, hay enormes desigualdades frente a la pandemia: algunas personas están mucho más protegidas y tienen mejor acceso a salud que otras.",
                         highchartOutput("peleg_desigualdad")    
                     ),
                     bs4Card(
                         width = 12,
-                        title = "Proporción de personas que indican que mientras la pandemia no esté controlada, no debería permitirse la protesta o movilización",
+                        title = "Mientras la pandemia no esté completamente controlada, no debiera permitirse ningún tipo de protesta o movilización social.",
                         highchartOutput("peleg_represion")    
                         
                     )

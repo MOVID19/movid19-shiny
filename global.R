@@ -54,7 +54,7 @@ movid <- movid %>%
           )
       )
     ) %>% 
-  mutate(crn3_pq_tiempo.1_reg = crn3_pq_tiempo.1)
+  mutate(crn3_pq_tiempo.1_reg = crn3_pq_tiempo_reg)
   
 
 
